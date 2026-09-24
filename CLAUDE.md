@@ -54,3 +54,37 @@ CLAUDE.md        ← this file
 - No hard minimum on grow time or sell interval (allow sub-second decimals)
 - Log important events to status panel
 - Show banner announcements for major world state changes
+
+## Real (verified working)
+_These were verified by reading the code on 2026-09-24, not by running the game. Full detail is in [docs/AUDIT.md](docs/AUDIT.md)._
+- Crop growth uses `burnedSeconds` (`engine.js` display timer). Water, fertilizer, uncommon fertilizer and rot all change the speed through `getEffectiveSpeedMult` (`upgrades.js`), which reads the same `state.*` maps the game writes.
+- Buying a speed upgrade recalculates modifiers straight away.
+- Weeds and thorned weeds can be cleared by clicking. Mounds, void rifts and claimed-tile reclaim work (`render/farm.js` `onTileDown`).
+- The sell box sells first-in, first-out, several items at once with capacity upgrades (after a reload), and the crank boost and decay work.
+- Crafting queue timing, recipe unlocks (free, prestige and achievement) and crafted-item selling all work.
+- Artifacts apply through `recalculateModifiers` → `applyArtifacts`.
+- Seasons, weather (drought, rain, frost) and the day/night cycle work.
+- The trading post rotates hourly, and purchases and the mystery box work.
+- Minigames (Soil Mixer, Water Flow) pay out rewards and track play counts.
+- Every `state` field is saved and loaded, except the items listed under Still open.
+- The canonical copy of each duplicated function is the **later-loaded** file: `render/farm.js` beats `events/index.js`, `render/seeds.js` has the winning `openBag`, and `render/sellbox.js` has the winning `showPop`.
+
+## Still open (known broken or unverified)
+_Full list, file:line references and roadmap are in [docs/AUDIT.md](docs/AUDIT.md). Work happens on the `phase1` branch. GitHub Pages deploys from `main`, so never push unfinished work there._
+- **Stage progress resets on reload.** `STATE.meta.allTimeGold` is never saved.
+- **Non-speed upgrades don't apply until reload.** Value, sell speed, sell box, crank, workshop and Copper Spout don't trigger a modifier recalculation. On a brand-new game `STATE.upgrades` and `state.upgrades` are also separate objects.
+- **Prestige perks don't work.** The code reads `prestige.<id>` but perks are stored in `prestige.perks[id]`. Head Start gives 500 per stack, not 2,000.
+- **Possible freeze.** A crafted item in the sell queue loses its `crafted` flag on load, which makes `tickSellBox` throw. ⚠ Needs a runtime check.
+- **Harvest, weed and rot-cure stats are never counted.** The duplicate functions in `render/farm.js` override the versions that tracked them, so those achievements and the Moon Shrine blueprint are unobtainable.
+- ⚠ **Desktop can't drop crops into inventory.** The drop is gated on `panelExpanded`, which only mobile sets. This blocks crop-based crafting.
+- **Locust can wipe all growth progress.** It uses the legacy `plantedAt` value.
+- **Hired hands are lost on a failed drop.** The seed shop also shows grow time × speed instead of ÷ speed.
+- **Only 3 of 14 events read `eventResistance`.** Ten hardcode their upgrade checks, and void rift has no mitigation at all.
+- **The game runs on two clocks.** The 50 ms tick drives growth, selling and events, while `Date.now()` drives rot, claims, crafting and seasons, so they drift apart in background tabs. There is no offline progress: `applyOfflineProgress` is never called and `lastSeen` is never saved.
+- **The save has no version field.** `migrate()` is dead code.
+- **Dead code:** `STATE.plots/sellQueue/inventory/events/fallenCrops/milestones`, `STATE.meta.gold/matureState/gameStartTime`, `crankMult`, `DIRTY`, `logEntries`, `waterFactor/fertFactor/rotFactor/adjustGrowTimes`, and 11 function names declared twice.
+- **Out-of-date statements at the top of this file:**
+  - Stage 1 unlocks at **50,000** all-time coins, not 1,000.
+  - There are 23 crops plus 3 ascension crops, not 13.
+  - `sprites.png` is **192×1792** (28 rows of 64 px cells), not 384×1664 at 128 px.
+  - The JavaScript now lives in `js/` and `css/`, not inline in `index.html`.
