@@ -123,23 +123,17 @@ function recalculateModifiers() {
   else if (bought.ironCrank)      mods.crankClickMultiplier = 1.025;
   else                            mods.crankClickMultiplier = 1.015;
 
-  // ── eventResistance: additive resistance per event type ───────────────────
+  // ── eventResistance: per-event reduction from mitigation upgrades (BALANCE.events) plus Thick Skin ──
   // hawkNet and herbicideII are flag-only (reduce quantity/spread, not spawn chance).
-  const gh  = bought.ironGreenhouse  ? 0.20 : 0;  // global all-event reduction
-  const tsk = perkTotal('thickSkin');             // per prestige stack
-  mods.eventResistance = {
-    crow:        (bought.scarecrowCoat   ? 0.30 : 0) + gh + tsk,
-    hawk:                                               gh + tsk,
-    mole:        (bought.groundMesh      ? 0.40 : 0) + gh + tsk,
-    thornedWeed: (bought.herbicideI      ? 0.25 : 0) + gh + tsk,
-    rot:         (bought.soilTreatment   ? 0.40 : 0) + gh + tsk,
-    locust:      (bought.locustWard      ? 0.50 : 0) + gh + tsk,
-    blight:      (bought.weathervane     ? 0.40 : 0) + gh + tsk,
-    fungal:      (bought.antifungalSpray ? 0.50 : 0) + gh + tsk,
-    developer:   (bought.developerBribe  ? 0.50 : 0) + gh + tsk,
-    plagueRat:   (bought.ratPoison       ? 0.50 : 0) + gh + tsk,
-    cosmicCrow:  (bought.cosmicRepellent ? 0.35 : 0),
-  };
+  const tsk = perkTotal('thickSkin');             // per prestige stack, applies to every event
+  mods.eventResistance = {};
+  for (const [id, ev] of Object.entries(BALANCE.events)) {
+    const owned = Object.entries(ev.resist || {}).filter(([upg]) => bought[upg]).map(([, r]) => r);
+    const fromUpgrades = ev.stack === 'add'
+      ? owned.reduce((sum, r) => sum + r, 0)
+      : 1 - owned.reduce((keep, r) => keep * (1 - r), 1);
+    mods.eventResistance[id] = fromUpgrades + tsk;
+  }
 
   // ── craftSpeedMult: highest tier wins ────────────────────────────────────
   if      (bought.masterWorkshop)  mods.craftSpeedMult = 1.60;
@@ -156,9 +150,87 @@ function recalculateModifiers() {
   if (typeof Seasons !== 'undefined') Seasons.applySeasonEffects();
 }
 
+// ══════════════════════════════
+// EVENT CHANCES
+// ══════════════════════════════
+// Reads a BALANCE value that may be a { stage: value } map (entry for the highest stage reached).
+function stageValue(v, stage) {
+  if (typeof v !== 'object') return v;
+  let out;
+  for (const k of Object.keys(v).map(Number).sort((a, b) => a - b)) if (stage >= k) out = v[k];
+  return out;
+}
+// Probability for one roll of event `id` right now: base chance × season × (1 − resistance).
+function eventChance(id) {
+  const ev    = BALANCE.events[id];
+  const base  = stageValue(ev.chance, getCurrentStage().stage);
+  const sMult = ev.season ? (STATE.modifiers[ev.season] || 1) : 1;
+  const res   = Math.min(BALANCE.eventResistanceCap, STATE.modifiers.eventResistance[id] || 0);
+  return base * sMult * (1 - res);
+}
+function eventInterval(id) { return stageValue(BALANCE.events[id].interval, getCurrentStage().stage); }
+
+// ══════════════════════════════
+// PURCHASES
+// ══════════════════════════════
+// The one purchase path for upgrades (UPGRADES) and shop items (ITEMS). Returns true when bought.
+// Always recalculates modifiers and saves. Render code calls this, then redraws.
+const EXPANSION_FLAGS = {
+  expand:'expanded', expandBottom:'expandedBottom', expand2ndCol:'expand2ndCol',
+  expand2ndRow:'expand2ndRow', expand3rdCol:'expand3rdCol', expand3rdRow:'expand3rdRow',
+};
 function applyUpgrade(id) {
-  STATE.upgrades[id] = true;
+  const u = UPGRADES.find(x => x.id === id);
+  if (u) {
+    if (state.upgrades[id] || state.coins < u.cost) return false;
+    state.coins -= u.cost;
+    state.upgrades[id] = true;
+    if (EXPANSION_FLAGS[u.type]) {
+      state[EXPANSION_FLAGS[u.type]] = true;
+      while (state.tiles.length < tileCount()) state.tiles.push(null);
+    }
+  } else if (!_buyItem(id)) {
+    return false;
+  }
   recalculateModifiers();
-  EventBus.emit('upgrade:purchased', { id });
+  if (u) {
+    if (u.id === 'workshop' && typeof checkFreeRecipes === 'function') checkFreeRecipes();
+    log(`⬆️ ${u.name} purchased`, 'unlock');
+    EventBus.emit('upgrade:purchased', { id });
+    if (typeof checkAchievements === 'function') checkAchievements();
+  }
   save();
+  return true;
+}
+
+// Item half of applyUpgrade: checks the price and grants the item. Only applyUpgrade calls this.
+function _buyItem(id) {
+  const it = ITEMS[id];
+  if (!it) return false;
+  if (id === 'hiredHand') {
+    const total = (state.hiredHandCount || 0) + Object.keys(state.hiredHandAssignments || {}).length;
+    if (total >= it.maxOwned || (STATE.meta.reputation || 0) < it.repCost) return false;
+    STATE.meta.reputation -= it.repCost;
+    state.hiredHandCount = (state.hiredHandCount || 0) + 1;
+    log('👨‍🌾 Hired hand hired!', 'system');
+    return true;
+  }
+  if (state.coins < it.cost) return false;
+  if (id === 'wateringCan' && state.items && state.items.wateringCan) return false;
+  if (id === 'copperSpout' && state.upgrades.copperSpout) return false;
+  state.coins -= it.cost;
+  switch (id) {
+    case 'wateringCan':
+      if (!state.items) state.items = {};
+      state.items.wateringCan = true; state.canCharges = 0;
+      break;
+    case 'copperSpout':
+      state.upgrades.copperSpout = true;
+      log(`${coinHTML()} Copper Spout installed — fill time 8s, capacity 2`, 'unlock');
+      break;
+    case 'cage':         state.cageCount           = (state.cageCount           || 0) + 1; break;
+    case 'fertilizer':   state.fertCharges         = (state.fertCharges         || 0) + 1; break;
+    case 'uncommonFert': state.uncommonFertCharges = (state.uncommonFertCharges || 0) + 1; break;
+  }
+  return true;
 }

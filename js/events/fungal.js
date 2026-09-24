@@ -31,10 +31,7 @@ function showFungalCureMenu(idx, cost, x, y) {
 // ── FUNGAL ────────────────────────────────────────────────────────────────
 function fungalSpawnTick() {
   if (!state.mature || getCurrentStage().stage < 3) return;
-  const chance = 0.08
-    * (state.upgrades.antifungalSpray ? 0.50 : 1)
-    * (state.upgrades.ironGreenhouse  ? 0.80 : 1);
-  if (Math.random() < chance) fungalBloom();
+  if (Math.random() < eventChance('fungal')) fungalBloom();
 }
 
 function fungalBloom() {

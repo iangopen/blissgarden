@@ -167,12 +167,7 @@ window.RenderPanel = (() => {
       const btn = mk('button', 'ug-btn');
       btn.addEventListener('click', e => {
         e.stopPropagation();
-        const pr = STATE.prestige || {}; if ((pr.points || 0) < seed.ppCost) return;
-        pr.points -= seed.ppCost;
-        if (!state.seedInventory) state.seedInventory = {};
-        state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
-        RenderInventory.renderInventory(); renderAscension(); save();
-        log(`✨ Bought ${seed.name} seed for ${seed.ppCost} prestige points`, 'prestige');
+        if (buyAscensionSeed(key)) { RenderInventory.renderInventory(); renderAscension(); }
       });
       botDiv.appendChild(costSpan); botDiv.appendChild(btn);
       card.appendChild(nameDiv); card.appendChild(descDiv); card.appendChild(botDiv);

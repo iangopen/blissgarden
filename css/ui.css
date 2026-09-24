@@ -224,6 +224,12 @@
 .stg-row { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; cursor: pointer; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.85); }
 .stg-row:last-child { margin-bottom: 0; }
 .stg-check { width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; accent-color: #5a8a3c; }
+.stg-data-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.stg-data-btn { flex: 1; background: #5a8a3c; color: #fff; border: none; border-radius: 6px; padding: 8px 0; font-size: 12px; font-weight: 700; cursor: pointer; }
+.stg-data-btn:hover { background: #4a7630; }
+.stg-save-io { width: 100%; box-sizing: border-box; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.18); border-radius: 5px; color: #fff; font: 11px monospace; padding: 6px 8px; margin-bottom: 6px; resize: vertical; outline: none; word-break: break-all; }
+.stg-save-msg { font-size: 11px; color: rgba(255,255,255,.7); min-height: 14px; margin-bottom: 8px; }
+.stg-save-msg.err { color: #ff9a8a; }
 #reset-btn { width: 100%; background: #b03020; color: #fff; border: none; border-radius: 6px; padding: 9px 0; font-size: 13px; font-weight: 700; cursor: pointer; }
 #reset-btn:hover { background: #922010; }
 

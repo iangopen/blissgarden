@@ -55,10 +55,7 @@ function rotTick() {
 
 function rootRotSpawnTick() {
   if (!state.mature || getCurrentStage().stage < 3) return;
-  const chance = 0.10
-    * (state.upgrades.soilTreatment  ? 0.60 : 1)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
-  if (Math.random() < chance) rootRotInfect();
+  if (Math.random() < eventChance('rot')) rootRotInfect();
 }
 
 function rootRotInfect() {
@@ -90,10 +87,7 @@ function rootRotInfect() {
 // ── LOCUST ────────────────────────────────────────────────────────────────
 function locustTick() {
   if (!state.mature || getCurrentStage().stage < 3) return;
-  const chance = 0.03
-    * (state.upgrades.locustWard      ? 0.50 : 1)
-    * (state.upgrades.ironGreenhouse  ? 0.80 : 1);
-  if (Math.random() < chance) locustAttack();
+  if (Math.random() < eventChance('locust')) locustAttack();
 }
 
 function locustAttack() {
@@ -137,10 +131,7 @@ function animateLocust() {
 function blightTick() {
   if (!state.mature || getCurrentStage().stage < 3) return;
   if (getCurrentStage().stage >= 4) return;
-  const chance = 0.15
-    * (state.upgrades.weathervane    ? 0.60 : 1)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
-  if (Math.random() < chance) blightAttack();
+  if (Math.random() < eventChance('blight')) blightAttack();
 }
 
 function blightAttack() {

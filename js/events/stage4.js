@@ -31,9 +31,7 @@ function showReclaimMenu(idx, cost, x, y) {
 // ── LAND DEVELOPERS ───────────────────────────────────────────────────────
 function landDeveloperTick() {
   if (!state.mature || getCurrentStage().stage < 4) return;
-  const resistance = (STATE.modifiers.eventResistance.developer || 0);
-  const chance = 0.15 * (1 - Math.min(0.95, resistance));
-  if (Math.random() < chance) landDeveloperAttack();
+  if (Math.random() < eventChance('developer')) landDeveloperAttack();
 }
 
 function landDeveloperAttack() {
@@ -95,9 +93,7 @@ function claimedTileTick() {
 // ── PLAGUE RATS ───────────────────────────────────────────────────────────
 function plagueRatTick() {
   if (!state.mature || getCurrentStage().stage < 4) return;
-  const resistance = (STATE.modifiers.eventResistance.plagueRat || 0);
-  const chance = 0.10 * (1 - Math.min(0.95, resistance));
-  if (Math.random() < chance) plagueRatAttack();
+  if (Math.random() < eventChance('plagueRat')) plagueRatAttack();
 }
 
 function plagueRatAttack() {
@@ -150,10 +146,7 @@ function diseasedTileTick() {
 function acidRainTick() {
   if (!state.mature || getCurrentStage().stage < 4) return;
   if (getCurrentStage().stage >= 5) return;
-  const chance = 0.15
-    * (state.upgrades.weathervane    ? 0.60 : 1)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1);
-  if (Math.random() < chance) acidRainAttack();
+  if (Math.random() < eventChance('acidRain')) acidRainAttack();
 }
 
 function acidRainAttack() {

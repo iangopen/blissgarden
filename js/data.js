@@ -95,6 +95,41 @@ window.ITEMS = {
     desc:'Drag from inventory onto any tile. Crops grown there are 40% faster permanently.',
     stackable:true, requires:'fertilizer',
   },
+  hiredHand: {
+    id:'hiredHand', name:'Hired Hand', icon:'👨‍🌾', repCost:5, maxOwned:3,
+    desc:'Drag from inventory to assign to a plot. Auto-harvests when ready. Max 3 total.',
+  },
+};
+
+// ══════════════════════════════
+// BALANCE — EVENTS
+// ══════════════════════════════
+// Keys match STATE.modifiers.eventResistance.
+// interval: ms between rolls. chance: probability per roll.
+//   Either may be a { stage: value } map; the entry for the highest stage reached applies.
+// season:   STATE.modifiers key multiplied into the chance.
+// resist:   { upgradeId: reduction } from mitigation upgrades.
+// stack:    'multiply' — reductions compound, resistance = 1 − Π(1 − r);  'add' — reductions sum.
+// Thick Skin (prestige) adds its total to every event. Effective resistance is capped at eventResistanceCap.
+window.BALANCE = {
+  eventResistanceCap: 0.95,
+  events: {
+    crow:         { interval:10000,                chance:{ 0:0.05, 2:0.08 }, season:'seasonCrowMult', stack:'multiply', resist:{ scarecrowCoat:0.30, ironGreenhouse:0.20 } },
+    weed:         { interval:8000,                 chance:{ 0:0.12, 3:0.18 }, season:'seasonWeedMult', stack:'multiply', resist:{ ironGreenhouse:0.20 } },
+    thornedWeed:  {                                chance:0.30,               /* share of stage-2 weed spawns */ stack:'multiply', resist:{ herbicideI:0.25 } },
+    hawk:         { interval:{ 0:15000, 3:10000 }, chance:{ 0:0.05, 3:0.06 }, season:'seasonCrowMult', stack:'multiply', resist:{ ironGreenhouse:0.20 } },
+    mole:         { interval:45000,                chance:0.08,               stack:'multiply', resist:{ groundMesh:0.40, ironGreenhouse:0.20 } },
+    rot:          { interval:180000,               chance:0.10,               stack:'multiply', resist:{ soilTreatment:0.40, ironGreenhouse:0.20 } },
+    locust:       { interval:30000,                chance:0.03,               stack:'multiply', resist:{ locustWard:0.50, ironGreenhouse:0.20 } },
+    blight:       { interval:300000,               chance:0.15,               stack:'multiply', resist:{ weathervane:0.40, ironGreenhouse:0.20 } },
+    fungal:       { interval:240000,               chance:0.08,               stack:'multiply', resist:{ antifungalSpray:0.50, ironGreenhouse:0.20 } },
+    developer:    { interval:180000,               chance:0.15,               stack:'add',      resist:{ developerBribe:0.50, ironGreenhouse:0.20 } },
+    plagueRat:    { interval:40000,                chance:0.10,               stack:'add',      resist:{ ratPoison:0.50, ironGreenhouse:0.20 } },
+    acidRain:     { interval:300000,               chance:0.15,               stack:'multiply', resist:{ weathervane:0.40, ironGreenhouse:0.20 } },
+    voidRift:     { interval:240000,               chance:0.08,               stack:'add',      resist:{} },
+    cosmicCrow:   { interval:12000,                chance:0.06,               stack:'add',      resist:{ cosmicRepellent:0.35, scarecrowCoat:0.20 } },
+    realityStorm: { interval:360000,               chance:0.10,               stack:'multiply', resist:{ weathervane:0.30 } },
+  },
 };
 
 // ══════════════════════════════

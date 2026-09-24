@@ -12,11 +12,11 @@ A browser-based incremental farming game. `index.html` holds the markup and load
 ```
 index.html          ← markup; <script> order at the bottom is the load order
 css/                ← base, effects, farm, ui
-js/data.js          ← balance data: seeds, bags, items, upgrades, stages, recipes, perks, blueprints
+js/data.js          ← balance data: seeds, bags, items, upgrades, stages, recipes, perks, blueprints, BALANCE.events
 js/state.js         ← STATE root. `state` is the same object as STATE.run (the farm run)
-js/save.js          ← save() / load()
-js/upgrades.js      ← recalculateModifiers, growth speed, EventBus, TimerManager
-js/engine.js        ← timer registrations and the 50 ms display tick (growth + selling)
+js/save.js          ← save() / load(), migrate(), export / import
+js/upgrades.js      ← recalculateModifiers, growth speed, eventChance(), applyUpgrade() (the purchase path)
+js/engine.js        ← EventBus, TimerManager, timer registrations, the 50 ms display tick (growth + selling)
 js/events/index.js  ← coins/stages, tile actions (onTileDown, water, tile menus, openBag)
 js/events/*.js      ← event logic per threat (crow/hawk, mole, blight+rot cure, fungal, weeds, stage 4, stage 5, sell box)
 js/render/*.js      ← DOM rendering (farm, panel, seeds, items, upgrades, sellbox, crafting, …)
@@ -65,6 +65,9 @@ CLAUDE.md           ← this file
 - Log important events to status panel
 - Show banner announcements for major world state changes
 - Every function name is declared once across `js/` (Phase 2 turns these files into ES modules, where duplicates become import conflicts)
+- Upgrade and item purchases go through `applyUpgrade(id)`, perks through `buyPerk(id)`, ascension seeds through `buyAscensionSeed(key)`. They recalculate modifiers and save. Render files call them and redraw; they never write upgrades, items or perks themselves.
+- Event spawn rolls use `Math.random() < eventChance(id)`. Base chances, intervals and mitigation values live in `BALANCE.events` (`data.js`).
+- Save format changes bump `SAVE_VERSION` and add a step to `migrate()` (`save.js`). The key stays `blissfarm10`.
 
 ## Real (verified working)
 _Items marked ▶ were checked by running the game in headless Chrome on 2026-09-24 (phase 1a/1b checklist). The rest were verified by reading the code. Detail in [docs/AUDIT.md](docs/AUDIT.md)._
@@ -72,7 +75,10 @@ _Items marked ▶ were checked by running the game in headless Chrome on 2026-09
 - ▶ One state root: `state` is `STATE.run`, and `STATE.upgrades` is a view of `STATE.run.upgrades`, so they are always the same object.
 - ▶ `state.coinsEarned` is the single all-time earnings counter (milestones, achievements, reputation, prestige). Loading also accepts the short-lived `allTimeGold` save key.
 - ▶ Stage survives a reload (saved as `stage`; `stagesSeen` backfilled).
-- ▶ Buying any upgrade, item or perk recalculates modifiers straight away (e.g. a value upgrade changes sell value at once).
+- ▶ Buying any upgrade, item or perk recalculates modifiers straight away (e.g. a value upgrade changes sell value at once). All of them go through `applyUpgrade` / `buyPerk`.
+- ▶ Save version 2: saves carry `version: 2` and `lastSeen`. `migrate()` upgrades unversioned `blissfarm10`/`blissfarm9` saves with no loss, and v2 keeps the flat layout so older builds can still read it.
+- ▶ Settings > Data has Export save (base64, copied to clipboard) and Import save (accepts base64 or the raw localStorage JSON, validates, migrates, reloads). Export → import round-trips to an identical state.
+- ▶ Every event roll reads `STATE.modifiers.eventResistance` through `eventChance()`. Thick Skin lowers all 15 rolls, and the debug panel shows each event's live chance. Without Thick Skin every chance is unchanged from before.
 - ▶ Prestige perks read `prestige.perks[id] × valuePerStack`; Head Start gives 2,000 per stack.
 - ▶ A crafted item in the sell queue keeps its `crafted` flag through a reload and sells; unknown sell-queue ids are skipped and logged instead of freezing the tick.
 - ▶ Harvest, weed/thorned-weed clear and rot cure (menu and Fast Cure) increment `stats.totalHarvested`, `weedsCleared` and `rotCured`, so those achievements and the Moon Shrine blueprint unlock.
@@ -89,11 +95,18 @@ _Items marked ▶ were checked by running the game in headless Chrome on 2026-09
 - Reset Data removes only this game's localStorage keys.
 - Every `state` field is saved and loaded, except the items listed under Still open.
 
+## Phase status
+**Phase 1 (Stabilize) is complete** on the `phase1` branch (1a bug fixes, 1b dedupe/dead code/single root, 1c save v2/purchase routing/event resistance). Not merged to `main` until it has been play-tested.
+
+Phase 1 leftovers, deliberately not changed:
+- Stages trigger on **coins held**, a decision made in session 1a. The roadmap's "one counter for stages, achievements and reputation" would switch stages to `coinsEarned`, which is a one-line change in `checkStages` if wanted.
+- Void rift has an `eventResistance` entry, but only Thick Skin lowers it. No upgrade reduces its spawn chance (Time Dilation, Rift Stabilizer and Void Seal act on drain and count).
+- Seed and bag purchases (`render/seeds.js`) and trading-post deals still run inside UI code. They spend coins but touch no upgrades or perks.
+- Other balance numbers from AUDIT D5 are still spread across files: cure costs, cage block rolls, weather, trading post, prestige formula and achievement thresholds.
+
 ## Still open (known broken or unverified)
 _Full list, file:line references and roadmap are in [docs/AUDIT.md](docs/AUDIT.md). Work happens on the `phase1` branch. GitHub Pages deploys from `main`, so never push unfinished work there._
-- **Purchases are spread across render files.** `render/upgrades.js`, `render/items.js`, `render/seeds.js`, `render/panel.js` and `tradingPost.js` change coins and upgrades directly instead of going through one logic function (`applyUpgrade` exists but is unused).
-- **Only 3 of 14 events read `eventResistance`.** Ten hardcode their upgrade checks, and void rift has no mitigation at all. Base event chances live in the event files, not `data.js`.
-- **The save has no version field** and no real `migrate()`. `lastSeen` is never saved.
+- **`lastSeen` is saved but nothing reads it yet.** Offline progress is Phase 3.
 - **The game runs on two clocks.** The 50 ms tick drives growth, selling and events, while `Date.now()` drives rot, claims, crafting and seasons, so they drift apart in background tabs. There is no offline progress.
 - **Plot expansion shifts crop positions** (flat tile array indexed by column count). The prestige Extra Plot perk sets expansion flags without the upgrade, so Expand Plot can be re-bought for nothing.
 - **Mystery Box payouts count toward all-time earnings.** Merchant's Bag can give ascension seeds.

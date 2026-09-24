@@ -1,10 +1,7 @@
 // ── WEEDS ─────────────────────────────────────────────────────────────────
 function weedTick() {
   if (!state.mature) return;
-  const chance = (getCurrentStage().stage >= 3 ? 0.18 : 0.12)
-    * (state.upgrades.ironGreenhouse ? 0.80 : 1)
-    * (STATE.modifiers.seasonWeedMult || 1);
-  if (Math.random() < chance) weedSpawn();
+  if (Math.random() < eventChance('weed')) weedSpawn();
 }
 
 function weedSpawn() {
@@ -20,8 +17,7 @@ function weedSpawn() {
   if (!empty.length) return;
 
   const stage = getCurrentStage().stage;
-  let thornedChance = 0.30 * (state.upgrades.herbicideI ? 0.75 : 1);
-  const spawnThorned = stage >= 3 || (stage >= 2 && Math.random() < thornedChance);
+  const spawnThorned = stage >= 3 || (stage >= 2 && Math.random() < eventChance('thornedWeed'));
 
   if (spawnThorned) {
     const cands = empty.filter(i => !state.cages.includes(i) || Math.random() > 0.60);

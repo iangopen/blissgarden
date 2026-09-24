@@ -53,21 +53,22 @@ setInterval(() => TimerManager.tick(), 50);
 // TIMER REGISTRATIONS
 // ══════════════════════════════
 const _stage = n => () => STATE.meta.stage >= n;
+const _every = id => stageValue(BALANCE.events[id].interval, 0);   // stage-0 interval; hawk switches at stage 3 in setupTimers
 
-TimerManager.register('crow',    { interval: 10000,  condition: _stage(1), fn: () => {} });
-TimerManager.register('weed',    { interval: 8000,   condition: _stage(1), fn: () => {} });
-TimerManager.register('hawk',    { interval: 15000,  condition: _stage(2), fn: () => {} });
-TimerManager.register('mole',    { interval: 45000,  condition: _stage(2), fn: () => {} });
-TimerManager.register('rootRot', { interval: 180000, condition: _stage(3), fn: () => {} });
-TimerManager.register('locust',  { interval: 30000,  condition: _stage(3), fn: () => {} });
-TimerManager.register('blight',  { interval: 300000, condition: _stage(3), fn: () => {} });
-TimerManager.register('fungal',        { interval: 240000, condition: _stage(3), fn: () => {} });
-TimerManager.register('landDeveloper', { interval: 180000, condition: _stage(4), fn: () => {} });
-TimerManager.register('plagueRat',     { interval: 40000,  condition: _stage(4), fn: () => {} });
-TimerManager.register('acidRain',      { interval: 300000, condition: _stage(4), fn: () => {} });
-TimerManager.register('voidRift',      { interval: 240000, condition: _stage(5), fn: () => {} });
-TimerManager.register('cosmicCrow',    { interval: 12000,  condition: _stage(5), fn: () => {} });
-TimerManager.register('realityStorm',  { interval: 360000, condition: _stage(5), fn: () => {} });
+TimerManager.register('crow',    { interval: _every('crow'),  condition: _stage(1), fn: () => {} });
+TimerManager.register('weed',    { interval: _every('weed'),   condition: _stage(1), fn: () => {} });
+TimerManager.register('hawk',    { interval: _every('hawk'),  condition: _stage(2), fn: () => {} });
+TimerManager.register('mole',    { interval: _every('mole'),  condition: _stage(2), fn: () => {} });
+TimerManager.register('rootRot', { interval: _every('rot'), condition: _stage(3), fn: () => {} });
+TimerManager.register('locust',  { interval: _every('locust'),  condition: _stage(3), fn: () => {} });
+TimerManager.register('blight',  { interval: _every('blight'), condition: _stage(3), fn: () => {} });
+TimerManager.register('fungal',        { interval: _every('fungal'), condition: _stage(3), fn: () => {} });
+TimerManager.register('landDeveloper', { interval: _every('developer'), condition: _stage(4), fn: () => {} });
+TimerManager.register('plagueRat',     { interval: _every('plagueRat'),  condition: _stage(4), fn: () => {} });
+TimerManager.register('acidRain',      { interval: _every('acidRain'), condition: _stage(4), fn: () => {} });
+TimerManager.register('voidRift',      { interval: _every('voidRift'), condition: _stage(5), fn: () => {} });
+TimerManager.register('cosmicCrow',    { interval: _every('cosmicCrow'),  condition: _stage(5), fn: () => {} });
+TimerManager.register('realityStorm',  { interval: _every('realityStorm'), condition: _stage(5), fn: () => {} });
 TimerManager.register('save',          { interval: 10000,  condition: () => true, fn: () => {} });
 TimerManager.register('craftTick',     { interval: 50,     condition: () => true, fn: () => {} });
 TimerManager.register('seasonTick',    { interval: 50,     condition: () => true, fn: () => {} });
@@ -85,7 +86,7 @@ function setupTimers() {
   TimerManager.timers['weed'].condition = cond(0);
   TimerManager.timers['hawk'].fn        = Events.hawkTick;
   TimerManager.timers['hawk'].condition = cond(2);
-  TimerManager.timers['hawk'].interval  = () => getCurrentStage().stage >= 3 ? 10000 : 15000;
+  TimerManager.timers['hawk'].interval  = () => eventInterval('hawk');
   TimerManager.timers['mole'].fn        = Events.moleTick;
   TimerManager.timers['mole'].condition = cond(2);
   TimerManager.timers['rootRot'].fn        = Events.rootRotSpawnTick;

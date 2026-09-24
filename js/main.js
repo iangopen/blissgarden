@@ -151,6 +151,7 @@ function setupUI() {
     function openSettings() {
       confirmed = false;
       resetBtn.textContent = 'Reset Data';
+      saveIo.style.display = 'none'; saveIo.value = ''; ioMsg('');
       if (farmNameInput) farmNameInput.value = STATE.meta.farmName || 'Bliss Farm';
       hideBoughtToggle.checked    = !!state.hideBoughtUpgrades;
       debugModeToggle.checked     = !!STATE.settings.debugMode;
@@ -203,9 +204,41 @@ function setupUI() {
       else {
         // Only this game's keys: GitHub Pages projects on this account share one origin.
         ['blissfarm10', 'blissfarm9', 'bliss_muted'].forEach(k => localStorage.removeItem(k));
-        TimerManager.timers = {};   // stop the autosave timer from re-writing the save before reload
-        window.save = () => {};
-        location.reload();
+        reloadWithoutSaving();
+      }
+    });
+
+    // ── Export / Import ──
+    const exportBtn = document.getElementById('export-btn');
+    const importBtn = document.getElementById('import-btn');
+    const saveIo    = document.getElementById('save-io');
+    const saveMsg   = document.getElementById('save-io-msg');
+    function ioMsg(text, isErr) { saveMsg.textContent = text; saveMsg.classList.toggle('err', !!isErr); }
+    function reloadWithoutSaving() {
+      TimerManager.timers = {};   // stop the autosave timer from re-writing the save before reload
+      window.save = () => {};
+      location.reload();
+    }
+    exportBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const text = exportSave();
+      saveIo.style.display = ''; saveIo.value = text; saveIo.select();
+      const copied = navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject();
+      copied.then(() => ioMsg('Save copied to clipboard.'), () => ioMsg('Copy the text above to keep your save.'));
+    });
+    importBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (saveIo.style.display === 'none' || !saveIo.value.trim()) {
+        saveIo.style.display = ''; saveIo.value = ''; saveIo.focus();
+        ioMsg('Paste a save, then press Import save again.');
+        return;
+      }
+      try {
+        importSave(saveIo.value);
+        ioMsg('Save imported. Reloading…');
+        reloadWithoutSaving();
+      } catch (err) {
+        ioMsg(err.message, true);
       }
     });
   }());

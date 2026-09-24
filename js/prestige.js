@@ -138,3 +138,17 @@ function buyPerk(perkId) {
   save();
   if (typeof RenderPanel !== 'undefined') RenderPanel.renderPrestige();
 }
+
+// Ascension seeds cost prestige points (Stage 5). Returns true when bought.
+function buyAscensionSeed(key) {
+  const seed = SEEDS[key];
+  if (!seed || !seed.ascension) return false;
+  const pr = STATE.prestige || {};
+  if ((pr.points || 0) < seed.ppCost) return false;
+  pr.points -= seed.ppCost;
+  if (!state.seedInventory) state.seedInventory = {};
+  state.seedInventory[key] = (state.seedInventory[key] || 0) + 1;
+  save();
+  log(`✨ Bought ${seed.name} seed for ${seed.ppCost} prestige points`, 'prestige');
+  return true;
+}

@@ -6,6 +6,7 @@ window.STATE = {
     seasonIndex: 0,
     seasonStartTime: Date.now(),
     tutorialDone: false,
+    lastSeen: null,           // ms timestamp of the save this session loaded from (for offline progress)
   },
   modifiers: {
     growSpeed: 1,

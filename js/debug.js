@@ -204,6 +204,11 @@ window.DebugPanel = (() => {
       const rem = TimerManager.getRemaining(id);
       html += row(label, `${rem}ms <span style="color:#445">(stage ${req}+)</span>`);
     });
+    html += h('EVENT CHANCES (per roll, now)');
+    Object.keys(BALANCE.events).forEach(id => {
+      const res = Math.min(BALANCE.eventResistanceCap, m.eventResistance[id] || 0);
+      html += row(id, `${(eventChance(id) * 100).toFixed(2)}% <span style="color:#445">(resist ${(res * 100).toFixed(1)}%)</span>`);
+    });
     html += h('OCCURRENCES');
     html += row('Crow attacks',  dc.crow);
     html += row('Hawk attacks',  dc.hawk);

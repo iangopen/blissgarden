@@ -12,25 +12,13 @@ window.RenderUpgrades = (() => {
       const btn = card.querySelector('.ug-btn');
       btn.addEventListener('click', e => {
         e.stopPropagation();
-        if (state.upgrades[u.id] || state.coins < u.cost) return;
-        state.coins -= u.cost; state.upgrades[u.id] = true;
-        recalculateModifiers();
-        if (u.type === 'expand')       { state.expanded = true;      RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
-        if (u.type === 'expandBottom') { state.expandedBottom = true; RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
-        if (u.type === 'expand2ndCol') { state.expand2ndCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
-        if (u.type === 'expand2ndRow') { state.expand2ndRow = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
-        if (u.type === 'expand3rdCol') { state.expand3rdCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
-        if (u.type === 'expand3rdRow') { state.expand3rdRow = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
+        if (!applyUpgrade(u.id)) return;
+        if (EXPANSION_FLAGS[u.type]) { RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
         if (u.type === 'ironSellBox' || u.type === 'steelSellBox' || u.type === 'titaniumSellBox' || u.type === 'diamondSellBox') {
           RenderSellbox.updateBoxStyle(); showBanner(`⚙️ ${u.name} activated.`);
         }
         if (u.type === 'crank' || u.type === 'crankUp') RenderSellbox.renderCrank();
-        if (u.id === 'workshop' && typeof checkFreeRecipes === 'function') checkFreeRecipes();
-        sfx.upgrade();
-        log(`⬆️ ${u.name} purchased`, 'unlock');
         updateCoins(); RenderFarm.renderGrid();
-        if (typeof checkAchievements === 'function') checkAchievements();
-        save();
       });
       if (typeof Tooltip !== 'undefined') card.dataset.tooltip = Tooltip.upgradeTip(u);
       _upgradesEl.appendChild(card);

@@ -18,7 +18,7 @@ function getAdjacentIdxs(idx) {
 // ── VOID RIFTS ─────────────────────────────────────────────────────────────
 function voidRiftTick() {
   if (!state.mature || getCurrentStage().stage < 5) return;
-  if (Math.random() < 0.08) voidRiftOpen();
+  if (Math.random() < eventChance('voidRift')) voidRiftOpen();
 }
 
 function voidRiftOpen() {
@@ -71,9 +71,7 @@ function voidRiftEffectTick() {
 // ── COSMIC CROWS ───────────────────────────────────────────────────────────
 function cosmicCrowTick() {
   if (!state.mature || getCurrentStage().stage < 5) return;
-  const resistance = (STATE.modifiers.eventResistance.cosmicCrow || 0)
-    + (state.upgrades.scarecrowCoat ? 0.20 : 0);
-  if (Math.random() < 0.06 * (1 - Math.min(0.95, resistance))) cosmicCrowAttack();
+  if (Math.random() < eventChance('cosmicCrow')) cosmicCrowAttack();
 }
 
 function cosmicCrowAttack() {
@@ -137,8 +135,7 @@ function animateCosmicCrow() {
 // ── REALITY STORMS ─────────────────────────────────────────────────────────
 function realityStormTick() {
   if (!state.mature || getCurrentStage().stage < 5) return;
-  const chance = 0.10 * (state.upgrades.weathervane ? 0.70 : 1);
-  if (Math.random() < chance) realityStormAttack();
+  if (Math.random() < eventChance('realityStorm')) realityStormAttack();
 }
 
 function realityStormAttack() {
