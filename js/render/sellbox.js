@@ -81,24 +81,17 @@ window.RenderSellbox = (() => {
     if (lbl) lbl.textContent = '⚙️ ' + STATE.session.crankMultiplier.toFixed(2) + 'x';
   }
 
-  function renderWell() {
-    const w = document.getElementById('well');
-    if (w) w.style.display = 'none';
-  }
-
   function setupUI() {
     document.getElementById('crank-svg').addEventListener('click', () => {
       if (!state.upgrades.windUpCrank) return;
       STATE.session.crankMultiplier = STATE.session.crankMultiplier * STATE.modifiers.crankClickMultiplier;
-      crankMult  = STATE.session.crankMultiplier;
       crankAngle = (crankAngle + 30) % 3600;
       document.getElementById('crank-svg').style.transform = `rotate(${crankAngle}deg)`;
       RenderSellbox.updateCrankLabel();
     });
-    document.getElementById('well').addEventListener('mousedown', e => e.stopPropagation());
   }
 
-  return { renderQueue, renderCrank, renderWell, updateBoxStyle, positionCrank, updateSellTimer, updateCrankLabel, setupUI };
+  return { renderQueue, renderCrank, updateBoxStyle, positionCrank, updateSellTimer, updateCrankLabel, setupUI };
 })();
 
 function showPop(text, x, y) {

@@ -408,7 +408,6 @@ window.TradingPost = (() => {
       RenderPanel.renderSeeds();
       RenderPanel.renderBags();
     }
-    DIRTY.panel = true;
     save();
     return mysteryResult;
   }

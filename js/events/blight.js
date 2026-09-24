@@ -14,18 +14,7 @@ function showRotCureMenu(idx, cost, x, y) {
     const td = state.tiles[idx];
     if (!td || state.coins < cost) return;
     state.coins -= cost;
-    const oldRF = rotFactor(idx);
     delete state.rotTiles[idx];
-    const newRF = rotFactor(idx);
-    if (oldRF !== newRF) {
-      const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(idx), ff = fertFactor(idx);
-      const oldGT = base * gm * wf * ff * oldRF, newGT = base * gm * wf * ff * newRF;
-      if (oldGT > 0) {
-        const elapsed = (Date.now() - td.plantedAt) / 1000;
-        const oldRem  = Math.max(0, oldGT - elapsed);
-        td.plantedAt  = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
-      }
-    }
     state.stats.rotCured = (state.stats.rotCured || 0) + 1;
     if (typeof checkAchievements === 'function') checkAchievements();
     log('💊 Root rot cured.', 'event');
@@ -90,14 +79,6 @@ function rootRotInfect() {
 
   const idx = cands[Math.floor(Math.random() * cands.length)];
   const td  = state.tiles[idx];
-  const oldGT = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * waterFactor(idx) * fertFactor(idx);
-  const newGT = oldGT / 0.30;
-  if (oldGT > 0) {
-    const elapsed = (Date.now() - td.plantedAt) / 1000;
-    const oldRem  = Math.max(0, oldGT - elapsed);
-    const newRem  = oldRem * (newGT / oldGT);
-    td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
-  }
   STATE.session.debugCounts.rootRot++;
   if (!state.rotTiles) state.rotTiles = {};
   state.rotTiles[idx] = { infectedAt: Date.now() };
@@ -122,19 +103,13 @@ function locustAttack() {
     showBanner('🪲 Locusts have descended on your farm.');
   }
   if (state.loose.length > 0) { state.loose = []; renderLoose(); }
-  const now = Date.now();
+  const setback = state.upgrades.cropShield ? 0.15 : 0.30;
   for (let i = 0; i < tileCount(); i++) {
     const td = state.tiles[i];
     if (!td || isReady(td, i)) continue;
-    const gt = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * waterFactor(i) * fertFactor(i) * rotFactor(i);
-    const elapsed   = (now - td.plantedAt) / 1000;
-    const progress  = Math.min(1, elapsed / gt);
-    const setback   = state.upgrades.cropShield ? 0.15 : 0.30;
-    const newProgress = Math.max(0, progress - setback);
-    td.plantedAt    = now - newProgress * gt * 1000;
-    if (td.burnedSeconds !== undefined) {
-      td.burnedSeconds = Math.max(0, newProgress * SEEDS[td.seed].grow);
-    }
+    // Progress lives in burnedSeconds; never derive it from plantedAt.
+    if (td.burnedSeconds === undefined) continue;
+    td.burnedSeconds = Math.max(0, td.burnedSeconds * (1 - setback));
   }
   sfx.locust();
   state.stats.locustsSurvived = (state.stats.locustsSurvived || 0) + 1;

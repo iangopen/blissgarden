@@ -41,7 +41,6 @@ window.craftItem = function craftItem(recipeId) {
   state.craftQueue.push({ recipeId, startedAt: now, finishAt: now + craftMs });
   EventBus.emit('craft:started', { recipeId });
 
-  DIRTY.panel = true;
   if (typeof RenderCrafting !== 'undefined' && RenderCrafting.isOpen()) RenderCrafting.renderCraftingPanel();
   if (typeof RenderPanel !== 'undefined') RenderPanel.renderInventory();
   save();
@@ -69,7 +68,6 @@ window.craftTick = function craftTick() {
 
   if (anyDone) {
     if (typeof checkAchievements === 'function') checkAchievements();
-    DIRTY.panel = true;
     if (typeof RenderCrafting !== 'undefined' && RenderCrafting.isOpen()) RenderCrafting.renderCraftingPanel();
     if (typeof RenderPanel !== 'undefined') RenderPanel.renderInventory();
     save();
@@ -83,7 +81,6 @@ window.unlockRecipe = function unlockRecipe(recipeId) {
   if (state.coins < recipe.unlockCost) return;
   state.coins -= recipe.unlockCost;
   STATE.recipeUnlocks[recipeId] = true;
-  DIRTY.panel = true;
   if (typeof RenderCrafting !== 'undefined') RenderCrafting.renderCraftingPanel();
   if (typeof updateCoins === 'function') updateCoins();
   log(`📜 Recipe unlocked: ${recipe.emoji} ${recipe.name}!`, 'unlock');
@@ -109,7 +106,6 @@ window.checkPrestigeUnlocks = function checkPrestigeUnlocks() {
     }
   });
   if (any) {
-    DIRTY.panel = true;
     if (typeof RenderCrafting !== 'undefined') RenderCrafting.renderCraftingPanel();
   }
 };
@@ -125,7 +121,6 @@ window.checkAchievementUnlocks = function checkAchievementUnlocks(achievementId)
     }
   });
   if (any) {
-    DIRTY.panel = true;
     if (typeof RenderCrafting !== 'undefined') RenderCrafting.renderCraftingPanel();
   }
 };

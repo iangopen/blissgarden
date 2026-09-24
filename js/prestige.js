@@ -30,7 +30,6 @@ function prestige() {
   pr.spent           = pr.spent || 0;
   pr.count           = (pr.count || 0) + 1;
   pr.highestStage    = Math.max(pr.highestStage || 0, getCurrentStage().stage || 0);
-  STATE.stats        = STATE.stats || {};
   state.stats.prestigeCount = pr.count;
 
   // ── Earn reputation (Stage 4+) ────────────────────────────────────────────
@@ -49,10 +48,7 @@ function prestige() {
   state.expand3rdRow   = extraPlots >= 6;
 
   // ── Reset STATE.meta ──────────────────────────────────────────────────────
-  STATE.meta.gold        = 10;
-  STATE.meta.allTimeGold = 0;
   STATE.meta.stage       = 0;
-  STATE.meta.matureState = false;
 
   // ── Reset flat state ──────────────────────────────────────────────────────
   state.coins                   = 10;
@@ -64,7 +60,6 @@ function prestige() {
   state.bagInventory            = {};
   state.craftedInventory        = {};
   state.sellQueue               = [];
-  state.sellNextAt              = 0;
   state.loose                   = [];
   state.upgrades                = {};
   state.milestones              = {};
@@ -105,24 +100,14 @@ function prestige() {
   state.hiredHandCount          = 0;
   state.hiredHandAssignments    = {};
 
-  // ── Reset STATE.events ────────────────────────────────────────────────────
-  STATE.events = {
-    firstCrow: false, firstWeed: false, firstHawk: false, firstMole: false,
-    firstRot: false, firstLocust: false, firstBlight: false, firstFungal: false,
-  };
-
-  // ── Re-share upgrades reference ───────────────────────────────────────────
-  STATE.upgrades = state.upgrades;
-
   // ── Reset sell/crank session ──────────────────────────────────────────────
   STATE.session.sellElapsed    = 0;
   STATE.session.crankMultiplier = 1.0;
-  crankMult = 1.0;
 
   // ── Apply headStart ───────────────────────────────────────────────────────
-  const bonus = (pr.perks.headStart || 0) * 500;
+  const headStartPerk = (window.PRESTIGE_PERKS || []).find(p => p.id === 'headStart');
+  const bonus = (pr.perks.headStart || 0) * (headStartPerk ? headStartPerk.valuePerStack : 0);
   state.coins     = 10 + bonus;
-  STATE.meta.gold = state.coins;
 
   recalculateModifiers();
 
@@ -151,6 +136,5 @@ function buyPerk(perkId) {
   pr.perks[perkId] = current + 1;
   recalculateModifiers();
   save();
-  DIRTY.panel = true;
   if (typeof RenderPanel !== 'undefined') RenderPanel.renderPrestige();
 }

@@ -1,30 +1,16 @@
 window.STATE = {
   meta: {
-    gold: 10,
-    allTimeGold: 0,
-    gameStartTime: Date.now(),
     stage: 0,
-    matureState: false,
     reputation: 0,
     farmName: 'Bliss Farm',
     seasonIndex: 0,
     seasonStartTime: Date.now(),
     tutorialDone: false,
   },
-  plots: Array(9).fill(null),
-  fallenCrops: [],
-  sellQueue: [],
-  inventory: {
-    seeds: {},
-    crops: {},
-    items: {},
-  },
-  upgrades: {},
   modifiers: {
     growSpeed: 1,
     sellValue: 1,
     sellInterval: 10000,
-    crankMultiplier: 1,       // runtime accumulated crank boost (managed by crank logic)
     crankClickMultiplier: 1.015, // per-click factor; set by recalculateModifiers
     sellBoxCapacity: 1,
     craftSpeedMult: 1,
@@ -38,19 +24,8 @@ window.STATE = {
       rot: 0, locust: 0, blight: 0, fungal: 0,
     },
   },
-  events: {
-    firstCrow: false,
-    firstWeed: false,
-    firstHawk: false,
-    firstMole: false,
-    firstRot: false,
-    firstLocust: false,
-    firstBlight: false,
-    firstFungal: false,
-  },
   settings: {
     muted: false,
-    hidePurchased: true,
     debugMode: false,
     reducedMotion: false,
     showBanners: true,
@@ -67,7 +42,6 @@ window.STATE = {
     highestStage: 0,
     totalGoldEarned: 0,
   },
-  milestones: {},
   artifacts: {},
   blueprints: {},
   recipeUnlocks: {},
@@ -83,7 +57,6 @@ window.STATE = {
   },
   session: {
     dragItem: null,
-    log: [],
     debugCounts: { crow:0, hawk:0, weed:0, mole:0, rootRot:0, locust:0, blight:0, fungal:0 },
     crankMultiplier: 1,
     timeOfDay: 'day',
@@ -96,55 +69,58 @@ window.STATE = {
     rainEndsAt:    0,
     frostEndsAt:   0,
   },
-};
-
-window.DIRTY = {
-  hud: true,
-  grid: true,
-  panel: true,
-  sellbox: true,
-};
-
-// ══════════════════════════════
-// FLAT GAME STATE
-// ══════════════════════════════
-var state = {
-  coins: 10, coinsEarned: 0, gameStartTime: Date.now(),
-  milestones: {}, stagesSeen: {}, mature: false,
-  tiles: Array(9).fill(null),
-  inventory: {}, seedInventory: {}, bagInventory: {}, craftedInventory: {},
-  achievements: {},
-  stats: {
-    totalHarvested: 0, totalPlanted: 0, totalCrafted: 0, craftedSold: 0,
-    weedsCleared: 0, crowsSurvived: 0, locustsSurvived: 0, rotCured: 0,
-    blightsSurvived: 0, bagsBought: 0,
-    seedTypesPlanted: {}, recipesEverCrafted: {}, prestigeCount: 0,
+  // ══════════════════════════════
+  // RUN STATE — the farm itself, reset by prestige.
+  // `state` below is this same object; both names reach the same data.
+  // coinsEarned is the single all-time earnings counter (milestones, achievements, reputation, prestige).
+  // ══════════════════════════════
+  run: {
+    coins: 10, coinsEarned: 0,
+    milestones: {}, stagesSeen: {}, mature: false,
+    tiles: Array(9).fill(null),
+    inventory: {}, seedInventory: {}, bagInventory: {}, craftedInventory: {},
+    achievements: {},
+    stats: {
+      totalHarvested: 0, totalPlanted: 0, totalCrafted: 0, craftedSold: 0,
+      weedsCleared: 0, crowsSurvived: 0, locustsSurvived: 0, rotCured: 0,
+      blightsSurvived: 0, bagsBought: 0,
+      seedTypesPlanted: {}, recipesEverCrafted: {}, prestigeCount: 0,
+    },
+    sellQueue: [],
+    craftQueue: [],
+    upgrades: {}, loose: [],
+    expanded: false, expandedBottom: false,
+    expand2ndCol: false, expand2ndRow: false,
+    expand3rdCol: false, expand3rdRow: false,
+    items: {}, cageCount: 0, cages: [],
+    canCharges: 0, canRefillAt: 0, tilesWatered: {},
+    fertCharges: 0, uncommonFertCharges: 0,
+    weeds: {}, fertilizedTiles: {}, uncommonFertilizedTiles: {},
+    firstWeedEver: false, firstCrowEver: false, firstHawkEver: false,
+    firstMoleEver: false, firstThornedEver: false,
+    thornedWeeds: {}, mounds: {}, rotTiles: {},
+    firstRotEver: false, firstLocustEver: false, firstBlightEver: false,
+    fungalTiles: {}, firstFungalEver: false,
+    claimedTiles: {}, diseasedTiles: {},
+    firstDeveloperEver: false, firstRatEver: false, firstAcidRainEver: false,
+    voidRifts: {}, firstVoidRiftEver: false, firstCosmicCrowEver: false, firstRealityStormEver: false,
+    hiredHandCount: 0,
+    hiredHandAssignments: {},
+    hideBoughtUpgrades: false,
   },
-  sellQueue: [], sellNextAt: 0,
-  craftQueue: [],
-  upgrades: {}, loose: [],
-  expanded: false, expandedBottom: false,
-  expand2ndCol: false, expand2ndRow: false,
-  expand3rdCol: false, expand3rdRow: false,
-  items: {}, cageCount: 0, cages: [],
-  canCharges: 0, canRefillAt: 0, tilesWatered: {},
-  fertCharges: 0, uncommonFertCharges: 0,
-  weeds: {}, fertilizedTiles: {}, uncommonFertilizedTiles: {},
-  firstWeedEver: false, firstCrowEver: false, firstHawkEver: false,
-  firstMoleEver: false, firstThornedEver: false,
-  thornedWeeds: {}, mounds: {}, rotTiles: {},
-  firstRotEver: false, firstLocustEver: false, firstBlightEver: false,
-  fungalTiles: {}, firstFungalEver: false,
-  claimedTiles: {}, diseasedTiles: {},
-  firstDeveloperEver: false, firstRatEver: false, firstAcidRainEver: false,
-  voidRifts: {}, firstVoidRiftEver: false, firstCosmicCrowEver: false, firstRealityStormEver: false,
-  hiredHandCount: 0,
-  hiredHandAssignments: {},
-  hideBoughtUpgrades: false,
 };
+
+// Purchased upgrades live in the run (prestige clears them). STATE.upgrades is kept as a view of them.
+Object.defineProperty(STATE, 'upgrades', {
+  get() { return STATE.run.upgrades; },
+  set(v) { STATE.run.upgrades = v; },
+  enumerable: false,
+});
+
+var state = STATE.run;
 
 var nextId = 0, selectedTile = null, panelExpanded = false, panelWidth = 280;
-var crankMult = 1.0, crankAngle = 0;
+var crankAngle = 0;
 var prevReadyState = {};
 var resizing = false, resizeStartX = 0, resizeStartW = 0, resizeMoved = false;
 
@@ -159,13 +135,6 @@ function fmt(s) {
   if (s < 60) return Math.ceil(s) + 's';
   if (s < 3600) { const m = Math.floor(s/60), sec = Math.ceil(s%60); return `${m}m${sec>0?' '+sec+'s':''}`; }
   const h = Math.floor(s/3600), m = Math.floor((s%3600)/60); return `${h}h${m>0?' '+m+'m':''}`;
-}
-function fmtElapsed(ms) {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-  if (h > 0) return `${h}h ${m}m ${sec}s`;
-  if (m > 0) return `${m}m ${sec}s`;
-  return `${sec}s`;
 }
 function formatNumber(n) {
   if (n >= 1e12) return (n/1e12).toFixed(2).replace(/\.?0+$/, '') + 'T';
@@ -208,20 +177,6 @@ function getSpriteStyle(cropId, stage, size=64) {
     imageRendering:  'pixelated',
     display:         'inline-block',
     flexShrink:      '0',
-  };
-}
-function getItemSpriteStyle(itemId, itemState, size=64) {
-  const row = ITEM_ROW_MAP[itemId], col = ITEM_COL_MAP[itemState];
-  if (row === undefined || col === undefined) return {};
-  return {
-    backgroundImage:    "url('./sprites.png')",
-    backgroundPosition: `${-(col*size)}px ${-(row*size)}px`,
-    backgroundSize:     `${size*3}px ${size*SHEET_ROWS}px`,
-    backgroundRepeat:   'no-repeat',
-    width: size+'px', height: size+'px',
-    imageRendering: 'pixelated',
-    display: 'inline-block',
-    flexShrink: '0',
   };
 }
 function makeSpriteDiv(cropId, stage, size=64) {

@@ -85,9 +85,6 @@ body {
   /* Crank box: position above sell box */
   #crank-box { bottom: 44px; }
 
-  /* Well: stays bottom-right, above toggle */
-  #well { bottom: 52px; right: 12px; }
-
   /* Log panel: hidden on mobile by default */
   #log-panel { display: none; }
 

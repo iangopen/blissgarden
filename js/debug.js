@@ -22,11 +22,8 @@ window.DebugPanel = (() => {
       _coinEditActive = false;
       const val = parseInt(input.value);
       if (!isNaN(val) && val >= 0) {
-        state.coins = val; STATE.meta.gold = val;
-        if (val > (STATE.meta.allTimeGold || 0)) {
-          STATE.meta.allTimeGold = val;
-          state.coinsEarned = val;
-        }
+        state.coins = val;
+        if (val > (state.coinsEarned || 0)) state.coinsEarned = val;
         checkStages(); checkMaturity();
       }
       input.remove();
@@ -72,7 +69,6 @@ window.DebugPanel = (() => {
     forcePrestigeBtn.style.cssText = 'background:#b03020;color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px;width:100%';
     forcePrestigeBtn.addEventListener('click', () => {
       state.coins = 1000000;
-      STATE.meta.gold = 1000000;
       prestige();
     });
     wrapper.appendChild(forcePrestigeBtn);

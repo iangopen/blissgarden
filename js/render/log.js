@@ -135,16 +135,8 @@ window.RenderLog = (() => {
 // ══════════════════════════════
 // LOG FUNCTION
 // ══════════════════════════════
-var logEntries = [];
-
 function log(msg, category = 'system') {
-  if (!STATE.session.log) STATE.session.log = [];
-  const entry = { message: msg, category, timestamp: Date.now() };
-  STATE.session.log.push(entry);
-  if (STATE.session.log.length > 50) STATE.session.log.shift();
-  logEntries.push(msg);
-  if (logEntries.length > 50) logEntries.shift();
-  RenderLog.renderLog(entry);
+  RenderLog.renderLog({ message: msg, category, timestamp: Date.now() });
 }
 
 function showBanner(text) {

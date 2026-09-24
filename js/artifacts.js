@@ -32,7 +32,6 @@ window.purchaseBlueprint = function purchaseBlueprint(blueprintId) {
   STATE.blueprints[blueprintId] = true;
   EventBus.emit('blueprint:unlocked', { blueprintId });
   save();
-  DIRTY.panel = true;
 };
 
 window.craftArtifact = function craftArtifact(artifactId) {

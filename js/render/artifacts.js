@@ -207,7 +207,6 @@ window.RenderArtifacts = (() => {
         btn.addEventListener('click', () => {
           purchaseBlueprint(bp.id);
           render();
-          if (typeof RenderHUD !== 'undefined') DIRTY.hud = true;
         });
         row.appendChild(emojiEl); row.appendChild(info); row.appendChild(btn);
       }

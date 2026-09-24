@@ -1,17 +1,3 @@
-// ── AUDIO SFX SHIM ──
-var sfx = {
-  plant()        { Audio.playPlant(); },
-  harvest()      { Audio.playHarvest(); },
-  drop()         { Audio.playDrop(); },
-  sell(v)        { Audio.playSell(v); },
-  sellAuto()     { Audio.playAutoSell(); },
-  attack()       { Audio.playCrow(); },
-  weedClick()    { Audio.playWeedClick(); },
-  upgrade()      { Audio.playUpgrade(); },
-  stageAdvance() { Audio.playStage(); },
-  locust()       { Audio.playLocust(); },
-};
-
 // ── COINS & STAGES ──
 function getCurrentStage() {
   const stage = STATE.meta.stage || 0;
@@ -25,10 +11,11 @@ function checkMilestones() {
     }
   });
 }
+// Stages trigger on coins currently held (design decision). Stage only ever advances.
 function checkStages() {
   for (const s of STAGES) {
     if (s.stage === 0 || s.stage <= STATE.meta.stage) continue;
-    if (STATE.meta.allTimeGold >= s.threshold) {
+    if ((state.coins || 0) >= s.threshold) {
       state.stagesSeen[s.stage] = true;
       STATE.meta.stage = s.stage;
       if (s.log) log(s.log, 'prestige');
@@ -40,7 +27,6 @@ function checkStages() {
 function checkMaturity() {
   if (!state.mature && STATE.meta.stage >= 1) {
     state.mature = true;
-    STATE.meta.matureState = true;
     log('🌿 The farm has matured. Nature has taken notice...', 'prestige');
     showBanner('🌿 The farm has matured. Nature is watching.');
   }
@@ -48,7 +34,6 @@ function checkMaturity() {
 function addCoins(amount) {
   state.coins += amount;
   state.coinsEarned = (state.coinsEarned || 0) + amount;
-  STATE.meta.allTimeGold = (STATE.meta.allTimeGold || 0) + amount;
   checkMilestones();
   checkStages();
   checkMaturity();
@@ -64,33 +49,29 @@ function updateCoins() {
   if (typeof RenderHUD.renderReputation === 'function') RenderHUD.renderReputation();
 }
 
+// ══════════════════════════════
+// TILE ACTIONS
+// Canonical home of the player's tile interactions (one copy each).
+// ══════════════════════════════
+
 // ── WATER / DROWN ──
+// Growth speed comes from state.tilesWatered via getEffectiveSpeedMult; no timing fields to rebase here.
 function applyWater(idx) {
   const td = state.tiles[idx];
   if (!td || isReady(td, idx)) return;
   if (state.tilesWatered && state.tilesWatered[idx]) { drownTile(idx); return; }
-  const baseGT = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * fertFactor(idx);
-  const newGT  = baseGT * 0.75;
-  const elapsed = (Date.now() - td.plantedAt) / 1000;
-  const oldRem = Math.max(0, baseGT - elapsed);
-  td.plantedAt = Date.now() - (newGT - oldRem * 0.75) * 1000;
   td.sellBonus = 1.25;
   if (!state.tilesWatered) state.tilesWatered = {};
   state.tilesWatered[idx] = true;
   RenderFarm.renderTile(idx); RenderPanel.renderInventory(); RenderPanel.renderItems();
   log(`💧 ${SEEDS[td.seed].name} watered (+25% value, +25% speed)`, 'growth');
+  EventBus.emit('crop:watered');
   save();
 }
+
 function drownTile(idx) {
   const td = state.tiles[idx];
   if (!td) return;
-  const ff = fertFactor(idx);
-  const currentGT  = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * ff * 0.75;
-  const drownedGT  = SEEDS[td.seed].grow * STATE.modifiers.growSpeed * ff;
-  const elapsed    = (Date.now() - td.plantedAt) / 1000;
-  const currentRem = Math.max(0, currentGT - elapsed);
-  const newRem     = currentRem * (drownedGT / currentGT);
-  td.plantedAt = Date.now() - (drownedGT - newRem) * 1000;
   td.drowned = true; td.sellBonus = 0.25;
   delete state.tilesWatered[idx];
   RenderFarm.renderTile(idx); RenderPanel.renderInventory(); RenderPanel.renderItems();
@@ -126,12 +107,14 @@ function openBag(bag) {
 function deselect() {
   if (selectedTile !== null) { const p = selectedTile; selectedTile = null; RenderFarm.renderTile(p); }
 }
+
 function hideTileMenu() { document.getElementById('tile-menu').style.display = 'none'; }
 
 function showTileMenu(idx, x, y) {
-  const isCaged = state.cages && state.cages.includes(idx);
-  const isFert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
-  if (!isCaged && !isFert) return;
+  const isCaged     = state.cages && state.cages.includes(idx);
+  const isFert      = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+  const isHiredHand = !!(state.hiredHandAssignments && state.hiredHandAssignments[idx]);
+  if (!isCaged && !isFert && !isHiredHand) return;
   const menu = document.getElementById('tile-menu');
   menu.innerHTML = '';
   if (isCaged) {
@@ -153,16 +136,47 @@ function showTileMenu(idx, x, y) {
     });
     menu.appendChild(btn);
   }
+  if (isHiredHand) {
+    const btn = mk('button'); btn.className = 'tmenu-btn'; btn.textContent = '👨‍🌾 Remove Hired Hand';
+    btn.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      delete state.hiredHandAssignments[idx];
+      state.hiredHandCount = (state.hiredHandCount || 0) + 1;
+      RenderFarm.renderTile(idx); RenderPanel.renderInventory(); save(); hideTileMenu();
+    });
+    menu.appendChild(btn);
+  }
   menu.style.left = Math.min(x, window.innerWidth  - 170) + 'px';
   menu.style.top  = Math.min(y, window.innerHeight - 90)  + 'px';
   menu.style.display = 'block';
 }
 
+// ── TILE CLICK ──
 function onTileDown(e) {
   const idx = parseInt(e.currentTarget.dataset.idx);
 
   if (state.rotTiles && state.rotTiles[idx] && state.rotTiles[idx].deadAt !== undefined) {
     e.stopPropagation(); return;
+  }
+  if (state.voidRifts && state.voidRifts[idx] !== undefined) {
+    e.stopPropagation();
+    state.voidRifts[idx].clicks++;
+    if (state.voidRifts[idx].clicks >= VOID_RIFT_CLICKS) {
+      delete state.voidRifts[idx];
+      log('🌀 Void rift sealed!', 'event');
+      RenderFarm.renderTile(idx);
+    } else {
+      e.currentTarget.classList.add('tile-rift-hit');
+      setTimeout(() => RenderFarm.renderTile(idx), 80);
+    }
+    save(); return;
+  }
+  if (state.claimedTiles && state.claimedTiles[idx]) {
+    e.stopPropagation();
+    const cl = state.claimedTiles[idx];
+    if (cl.releasesAt !== undefined) return;
+    showReclaimMenu(idx, cl.reclaimCost, e.clientX + 4, e.clientY + 4);
+    return;
   }
   if (state.mounds && state.mounds[idx] !== undefined) {
     e.stopPropagation();
@@ -178,6 +192,7 @@ function onTileDown(e) {
       state.stats.weedsCleared = (state.stats.weedsCleared || 0) + 1;
       if (typeof checkAchievements === 'function') checkAchievements();
       log('✅ Thorned weed cleared!', 'event');
+      EventBus.emit('weed:cleared');
       RenderFarm.renderTile(idx);
     } else {
       e.currentTarget.classList.add('tile-weed-hit');
@@ -194,6 +209,7 @@ function onTileDown(e) {
       state.stats.weedsCleared = (state.stats.weedsCleared || 0) + 1;
       if (typeof checkAchievements === 'function') checkAchievements();
       log('✅ Weed cleared!', 'event');
+      EventBus.emit('weed:cleared');
       RenderFarm.renderTile(idx);
     } else {
       e.currentTarget.classList.add('tile-weed-hit');
@@ -207,9 +223,10 @@ function onTileDown(e) {
 
   if (!td) {
     deselect();
-    const _caged = state.cages && state.cages.includes(idx);
-    const _fert  = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
-    if (_caged || _fert) showTileMenu(idx, e.clientX + 4, e.clientY + 4);
+    const _caged  = state.cages && state.cages.includes(idx);
+    const _fert   = !!(state.fertilizedTiles && state.fertilizedTiles[idx]);
+    const _hhand  = !!(state.hiredHandAssignments && state.hiredHandAssignments[idx]);
+    if (_caged || _fert || _hhand) showTileMenu(idx, e.clientX + 4, e.clientY + 4);
     else if (_isFungal)  showFungalCureMenu(idx, 50, e.clientX + 4, e.clientY + 4);
     return;
   }
@@ -249,24 +266,13 @@ function onTileDown(e) {
     if (state.upgrades.fastCure) {
       if (state.coins >= cureCost) {
         state.coins -= cureCost;
-        const oldRF = rotFactor(idx);
         delete state.rotTiles[idx];
-        const newRF = rotFactor(idx);
-        if (oldRF !== newRF) {
-          const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(idx), ff = fertFactor(idx);
-          const oldGT = base * gm * wf * ff * oldRF, newGT = base * gm * wf * ff * newRF;
-          if (oldGT > 0) {
-            const elapsed = (Date.now() - td.plantedAt) / 1000;
-            const oldRem  = Math.max(0, oldGT - elapsed);
-            td.plantedAt  = Date.now() - (newGT - oldRem * (newGT / oldGT)) * 1000;
-          }
-        }
         state.stats.rotCured = (state.stats.rotCured || 0) + 1;
         if (typeof checkAchievements === 'function') checkAchievements();
         log('💊 Root rot cured.', 'event');
         updateCoins(); RenderFarm.renderTile(idx); save();
       } else {
-        log(`💊 Need ${coinHTML()}${cureCost} to cure root rot.`, 'event');
+        log(`💊 Need ${coinHTML()}${formatNumber(cureCost)} to cure root rot.`, 'event');
       }
     } else {
       showRotCureMenu(idx, cureCost, e.clientX + 4, e.clientY + 4);

@@ -1,24 +1,3 @@
-// ── BAG OPENING (global helper used by inventory slots) ─────────────────────
-function openBag(bag) {
-  if (!state.bagInventory) state.bagInventory = {};
-  if ((state.bagInventory[bag.id] || 0) < 1) return;
-  state.bagInventory[bag.id]--;
-  if (!state.seedInventory) state.seedInventory = {};
-  const received = [];
-  for (let i = 0; i < 3; i++) {
-    const roll = Math.random();
-    let cum = 0, chosen = bag.seeds[bag.seeds.length - 1];
-    for (let j = 0; j < bag.seeds.length; j++) {
-      cum += bag.odds[j];
-      if (roll < cum) { chosen = bag.seeds[j]; break; }
-    }
-    state.seedInventory[chosen] = (state.seedInventory[chosen] || 0) + 1;
-    received.push((SEEDS[chosen].seedIcon || SEEDS[chosen].icon || '🌱') + ' ' + SEEDS[chosen].name);
-  }
-  log(`🎒 ${bag.name} opened: ${received.join(', ')}`, 'growth');
-  RenderInventory.renderInventory(); save();
-}
-
 window.RenderSeeds = (() => {
   // ── BASIC SEEDS ───────────────────────────────────────────────────────────
   const _seedRows = new Map(); // key → { btn, metaSpan }
@@ -60,7 +39,7 @@ window.RenderSeeds = (() => {
     _seedRows.forEach(({ btn, metaSpan, row }, key) => {
       const seed = SEEDS[key];
       btn.disabled = state.coins < seed.cost;
-      metaSpan.innerHTML = `${coinHTML()}${formatNumber(seed.cost)} - ${fmt(seed.grow * mult)}`;
+      metaSpan.innerHTML = `${coinHTML()}${formatNumber(seed.cost)} - ${fmt(seed.grow / mult)}`;
       if (row && typeof Tooltip !== 'undefined') row.dataset.tooltip = Tooltip.seedShopTip(key);
     });
   }

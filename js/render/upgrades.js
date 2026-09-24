@@ -13,13 +13,8 @@ window.RenderUpgrades = (() => {
       btn.addEventListener('click', e => {
         e.stopPropagation();
         if (state.upgrades[u.id] || state.coins < u.cost) return;
-        if (u.type === 'speed') {
-          const oldMult = STATE.modifiers.growSpeed;
-          state.coins -= u.cost; state.upgrades[u.id] = true; STATE.upgrades[u.id] = true;
-          recalculateModifiers(); adjustGrowTimes(oldMult, STATE.modifiers.growSpeed);
-        } else {
-          state.coins -= u.cost; state.upgrades[u.id] = true;
-        }
+        state.coins -= u.cost; state.upgrades[u.id] = true;
+        recalculateModifiers();
         if (u.type === 'expand')       { state.expanded = true;      RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
         if (u.type === 'expandBottom') { state.expandedBottom = true; RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
         if (u.type === 'expand2ndCol') { state.expand2ndCol = true;   RenderFarm.buildGrid(); RenderFarm.renderGrid(); showBanner('🌱 The farm has expanded.'); if (typeof applyFarmScale === 'function') applyFarmScale(); }
@@ -30,7 +25,6 @@ window.RenderUpgrades = (() => {
           RenderSellbox.updateBoxStyle(); showBanner(`⚙️ ${u.name} activated.`);
         }
         if (u.type === 'crank' || u.type === 'crankUp') RenderSellbox.renderCrank();
-        if (u.type === 'sellSpeed') TimerManager.restart('sell');
         if (u.id === 'workshop' && typeof checkFreeRecipes === 'function') checkFreeRecipes();
         sfx.upgrade();
         log(`⬆️ ${u.name} purchased`, 'unlock');

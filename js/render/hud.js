@@ -24,12 +24,6 @@ window.RenderHUD = (() => {
       `<span style="font-size:12px;font-weight:600;letter-spacing:.3px">Stage ${s.stage}: ${s.name}</span>`;
   }
 
-  function renderTimeOfDay() {
-    const todIcons = { dawn: '🌅', day: '🌞', dusk: '🌆', night: '🌙' };
-    const iconEl = document.getElementById('tod-icon');
-    if (iconEl) iconEl.textContent = todIcons[STATE.session.timeOfDay] || '🌞';
-  }
-
   function renderReputation() {
     const el = document.getElementById('rep-display');
     if (!el) return;
@@ -38,5 +32,5 @@ window.RenderHUD = (() => {
     el.textContent = `⭐ ${STATE.meta.reputation || 0}`;
   }
 
-  return { renderCoin, renderStage, renderTimeOfDay, renderReputation };
+  return { renderCoin, renderStage, renderReputation };
 })();

@@ -3,7 +3,7 @@ const KEY     = 'blissfarm10';
 const KEY_OLD = 'blissfarm9';
 
 window.save = function save() {
-  localStorage.setItem(KEY, JSON.stringify({ ...state, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, reducedMotion: STATE.settings.reducedMotion, showBanners: STATE.settings.showBanners, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone, tradingPost: STATE.tradingPost, logFilters: STATE.settings.logFilters, minigames: { soilMixer: STATE.minigames.soilMixer, waterFlow: STATE.minigames.waterFlow } }));
+  localStorage.setItem(KEY, JSON.stringify({ ...state, stage: STATE.meta.stage, nextId, panelExpanded, panelWidth, debugMode: STATE.settings.debugMode, reducedMotion: STATE.settings.reducedMotion, showBanners: STATE.settings.showBanners, dayOffset: STATE.meta.dayOffset, prestige: STATE.prestige, reputation: STATE.meta.reputation, artifacts: STATE.artifacts, blueprints: STATE.blueprints, recipeUnlocks: STATE.recipeUnlocks, farmName: STATE.meta.farmName, seasonIndex: STATE.meta.seasonIndex, seasonStartTime: STATE.meta.seasonStartTime, tutorialDone: STATE.meta.tutorialDone, tradingPost: STATE.tradingPost, logFilters: STATE.settings.logFilters, minigames: { soilMixer: STATE.minigames.soilMixer, waterFlow: STATE.minigames.waterFlow } }));
 };
 
 window.load = function load() {
@@ -13,25 +13,28 @@ window.load = function load() {
     const d = JSON.parse(raw || 'null');
     if (!d) return false;
     state.coins           = d.coins           ?? 10;
-    state.coinsEarned     = d.coinsEarned     ?? 0;
-    state.gameStartTime       = d.gameStartTime       ?? Date.now();
+    // One all-time counter. Builds between the audit and phase 1b also wrote a separate allTimeGold; keep the larger.
+    state.coinsEarned     = Math.max(d.coinsEarned ?? 0, d.allTimeGold ?? 0);
     STATE.meta.dayOffset      = d.dayOffset            ?? null;
     state.milestones      = d.milestones      ?? {};
     state.stagesSeen      = d.stagesSeen      ?? {};
-    STATE.meta.stage      = Object.keys(state.stagesSeen).reduce((m, s) => Math.max(m, parseInt(s)), 0);
+    // Highest stage ever reached: never lower than what stagesSeen or a saved stage says.
+    STATE.meta.stage      = Math.max(d.stage ?? 0, Object.keys(state.stagesSeen).reduce((m, s) => Math.max(m, parseInt(s)), 0));
+    for (let s = 1; s <= STATE.meta.stage; s++) state.stagesSeen[s] = true;
     state.mature          = d.mature          ?? false;
     state.tiles           = d.tiles           ?? Array(9).fill(null);
     state.inventory       = d.inventory       ?? {};
     state.seedInventory   = d.seedInventory   ?? {};
     state.bagInventory    = d.bagInventory    ?? {};
+    // Older builds stripped `crafted` on load; restore it for queue items whose id is a recipe, not a seed.
+    const _isRecipeId = id => !SEEDS[id] && !!(window.RECIPES || []).find(r => r.id === id);
     state.sellQueue       = (d.sellQueue || []).map(item =>
       typeof item === 'string'
-        ? { seed: item, bonus: 1, drowned: false, fungal: false }
-        : { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false, fungal: item.fungal ?? false });
-    state.sellNextAt              = d.sellNextAt              ?? 0;
+        ? { seed: item, bonus: 1, drowned: false, fungal: false, crafted: _isRecipeId(item) }
+        : { seed: item.seed, bonus: item.bonus ?? 1, drowned: item.drowned ?? false, fungal: item.fungal ?? false,
+            crafted: item.crafted ?? _isRecipeId(item.seed) });
     state.upgrades                = d.upgrades                ?? {};
     if (state.upgrades.crankUpI && !state.upgrades.ironCrank) state.upgrades.ironCrank = true;
-    STATE.upgrades                = state.upgrades;
     state.loose           = (d.loose || []).map(item => ({
       seed: item.seed, id: item.id, x: item.x, y: item.y,
       bonus: item.bonus ?? 1.0, drowned: item.drowned ?? false, fungal: item.fungal ?? false }));
@@ -135,88 +138,3 @@ window.load = function load() {
     return true;
   } catch (_) { return false; }
 };
-
-// ── LEGACY SAVE CONSTANTS (kept for migrate() below) ─────────────────────
-const SAVE_VERSION = 1;
-const SAVE_KEY = 'blissFarm_v1';
-const OLD_KEY  = 'littleFarm';
-
-function migrate(data) {
-  if (data && (data.version ?? 0) >= SAVE_VERSION) return data;
-
-  // No new-format save — try to port an old flat save
-  let old = null;
-  try {
-    const raw = localStorage.getItem(OLD_KEY);
-    old = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error('migrate: failed to read old save', e);
-  }
-
-  if (!old) return data; // nothing to migrate; return whatever we had (null = fresh start)
-
-  // Derive stage from allTimeGold
-  const allTimeGold = old.coinsEarned ?? 0;
-  let stage = 0;
-  for (const s of (window.STAGES ?? [])) {
-    if (allTimeGold >= s.threshold) stage = s.stage;
-  }
-
-  // Normalise sell queue entries (old format used plain strings)
-  const sellQueue = (old.sellQueue ?? []).map(normalizeQueueItem);
-
-  // Map old flat inventory shape to new nested shape
-  const seeds = {};
-  const crops = {};
-  const items = {};
-
-  // old.seedInventory: { potato:2, ... }
-  Object.assign(seeds, old.seedInventory ?? {});
-
-  // old.inventory: { potato:1, ... } (harvested crops)
-  Object.assign(crops, old.inventory ?? {});
-
-  // old.items: { wateringCan:true } — convert booleans to 1
-  for (const [k, v] of Object.entries(old.items ?? {})) {
-    if (v) items[k] = 1;
-  }
-  // old stackable counts
-  if (old.cageCount)              items.cage          = old.cageCount;
-  if (old.fertCharges)            items.fertilizer    = old.fertCharges;
-  if (old.uncommonFertCharges)    items.uncommonFert  = old.uncommonFertCharges;
-
-  const upgrades = { ...(old.upgrades ?? {}) };
-  // Backfill a known rename
-  if (upgrades.crankUpI && !upgrades.ironCrank) upgrades.ironCrank = true;
-
-  return {
-    version:   SAVE_VERSION,
-    meta: {
-      gold:          old.coins          ?? 10,
-      allTimeGold,
-      gameStartTime: old.gameStartTime  ?? Date.now(),
-      stage,
-      matureState:   old.mature         ?? false,
-      lastSeen:      null,
-    },
-    plots:      old.tiles     ?? Array(9).fill(null),
-    sellQueue,
-    inventory:  { seeds, crops, items },
-    upgrades,
-    settings: {
-      muted:         false,
-      hidePurchased: old.hideBoughtUpgrades ?? true,
-    },
-    milestones: old.milestones ?? {},
-  };
-}
-
-function normalizeQueueItem(item) {
-  if (typeof item === 'string') return { seed:item, bonus:1, drowned:false, fungal:false };
-  return {
-    seed:    item.seed,
-    bonus:   item.bonus   ?? 1,
-    drowned: item.drowned ?? false,
-    fungal:  item.fungal  ?? false,
-  };
-}

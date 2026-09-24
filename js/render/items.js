@@ -26,7 +26,7 @@ window.RenderItems = (() => {
       state.coins -= 100;
       if (!state.items) state.items = {};
       state.items.wateringCan = true; state.canCharges = 0;
-      updateCoins(); RenderInventory.renderInventory(); save();
+      recalculateModifiers(); updateCoins(); RenderInventory.renderInventory(); save();
     });
     wcBotDiv.appendChild(_wcBtn);
     _wcCard.appendChild(wcNameDiv); _wcCard.appendChild(wcDescDiv); _wcCard.appendChild(wcBotDiv);
@@ -43,7 +43,7 @@ window.RenderItems = (() => {
       if (!state.upgrades) state.upgrades = {};
       state.upgrades.copperSpout = true;
       log(`${coinHTML()} Copper Spout installed — fill time 8s, capacity 2`, 'unlock');
-      updateCoins(); RenderInventory.renderInventory(); save();
+      recalculateModifiers(); updateCoins(); RenderInventory.renderInventory(); save();
     });
     _itemsEl.appendChild(_spoutCard);
 
@@ -55,7 +55,7 @@ window.RenderItems = (() => {
       e.stopPropagation();
       if (state.coins < 250) return;
       state.coins -= 250; state.cageCount = (state.cageCount || 0) + 1;
-      updateCoins(); RenderInventory.renderInventory(); save();
+      recalculateModifiers(); updateCoins(); RenderInventory.renderInventory(); save();
     });
     _itemsEl.appendChild(_cageCard);
 
@@ -67,7 +67,7 @@ window.RenderItems = (() => {
       e.stopPropagation();
       if (state.coins < 500) return;
       state.coins -= 500; state.fertCharges = (state.fertCharges || 0) + 1;
-      updateCoins(); RenderInventory.renderInventory(); save();
+      recalculateModifiers(); updateCoins(); RenderInventory.renderInventory(); save();
     });
     _itemsEl.appendChild(_fertCard);
 
@@ -79,7 +79,7 @@ window.RenderItems = (() => {
       e.stopPropagation();
       if (state.coins < 2000) return;
       state.coins -= 2000; state.uncommonFertCharges = (state.uncommonFertCharges || 0) + 1;
-      updateCoins(); RenderInventory.renderInventory(); save();
+      recalculateModifiers(); updateCoins(); RenderInventory.renderInventory(); save();
     });
     _itemsEl.appendChild(_ufertCard);
 
@@ -98,7 +98,7 @@ window.RenderItems = (() => {
       if (total >= 3 || (STATE.meta.reputation || 0) < 5) return;
       STATE.meta.reputation -= 5;
       state.hiredHandCount = (state.hiredHandCount || 0) + 1;
-      RenderInventory.renderInventory(); RenderItems.renderItems(); RenderHUD.renderReputation(); save();
+      recalculateModifiers(); RenderInventory.renderInventory(); RenderItems.renderItems(); RenderHUD.renderReputation(); save();
       log('👨‍🌾 Hired hand hired!', 'system');
     });
     hhBotDiv.appendChild(_hhBtn); _hhCard.appendChild(hhBotDiv);

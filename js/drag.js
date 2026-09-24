@@ -103,7 +103,7 @@ window.DragSystem = (() => {
 
     } else {
       if (hit(clientX, clientY, sellBox))                          sellBox.classList.add('drop-hi');
-      else if (panelExpanded && hit(clientX, clientY, panel))      panel.classList.add('drop-hi');
+      else if (hit(clientX, clientY, panel))                       panel.classList.add('drop-hi');
     }
   }
 
@@ -129,7 +129,7 @@ window.DragSystem = (() => {
         handlers[source]['sell-box'](item, sellBox, { clientX, clientY });
         handled = true;
       }
-      if (!handled && panelExpanded && hit(clientX, clientY, panel) && handlers[source].panel) {
+      if (!handled && hit(clientX, clientY, panel) && handlers[source].panel) {
         handlers[source].panel(item, panel, { clientX, clientY });
         handled = true;
       }
@@ -142,8 +142,9 @@ window.DragSystem = (() => {
     if (!handled) {
       if (source === 'inventory-item') {
         const it = item.itemType;
-        if (it === 'water')     state.canCharges++;
-        else if (it === 'cage') state.cageCount++;
+        if (it === 'water')          state.canCharges++;
+        else if (it === 'cage')      state.cageCount++;
+        else if (it === 'hiredHand') state.hiredHandCount = (state.hiredHandCount || 0) + 1;
         RenderPanel.renderInventory(); RenderPanel.renderItems();
 
       } else if (source === 'seedInventory') {
@@ -188,7 +189,7 @@ window.DragSystem = (() => {
       } else {
         if (hit(clientX, clientY, sellBox)) {
           addToSellQueue(seed, bonus || 1.0, drowned || false, item.fungal || false);
-        } else if (panelExpanded && hit(clientX, clientY, panel)) {
+        } else if (hit(clientX, clientY, panel)) {
           addInventory(seed); RenderPanel.renderInventory(); save();
         } else {
           dropLoose(seed, clientX, clientY, bonus || 1.0, drowned || false, item.fungal || false);
@@ -292,11 +293,6 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
         if (extra >= 2) break;
         const atd = state.tiles[ai];
         if (!atd || isReady(atd, ai) || state.tilesWatered?.[ai]) continue;
-        const baseGT = SEEDS[atd.seed].grow * getGrowMult() * fertFactor(ai);
-        const newGT  = baseGT * 0.75;
-        const elapsed = (Date.now() - atd.plantedAt) / 1000;
-        const oldRem = Math.max(0, baseGT - elapsed);
-        atd.plantedAt = Date.now() - (newGT - oldRem * 0.75) * 1000;
         atd.sellBonus = 1.25;
         if (!state.tilesWatered) state.tilesWatered = {};
         state.tilesWatered[ai] = true;
@@ -326,19 +322,8 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
     && !blocked
     && (state.fertCharges || 0) >= 1) {
     if (!state.fertilizedTiles) state.fertilizedTiles = {};
-    const oldFF = fertFactor(i);
     state.fertilizedTiles[i] = true;
     state.fertCharges--;
-    const newFF = fertFactor(i);
-    if (td && !isReady(td, i)) {
-      const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(i);
-      const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
-      if (oldGT > 0) {
-        const elapsed = (Date.now() - td.plantedAt) / 1000;
-        const newRem  = Math.max(0, oldGT - elapsed) * (newGT / oldGT);
-        td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
-      }
-    }
     log('🌿 Plot fertilized — crops grow 25% faster here', 'growth');
     EventBus.emit('tile:fertilized');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();
@@ -348,19 +333,8 @@ DragSystem.register('inventory-item', 'tile', (item, tileEl) => {
     && !blocked
     && (state.uncommonFertCharges || 0) >= 1) {
     if (!state.uncommonFertilizedTiles) state.uncommonFertilizedTiles = {};
-    const oldFF = fertFactor(i);
     state.uncommonFertilizedTiles[i] = true;
     state.uncommonFertCharges--;
-    const newFF = fertFactor(i);
-    if (td && !isReady(td, i)) {
-      const base = SEEDS[td.seed].grow, gm = STATE.modifiers.growSpeed, wf = waterFactor(i);
-      const oldGT = base * gm * wf * oldFF, newGT = base * gm * wf * newFF;
-      if (oldGT > 0) {
-        const elapsed = (Date.now() - td.plantedAt) / 1000;
-        const newRem  = Math.max(0, oldGT - elapsed) * (newGT / oldGT);
-        td.plantedAt  = Date.now() - (newGT - newRem) * 1000;
-      }
-    }
     log('⚗️ Plot uncommon fertilized — crops grow 40% faster here', 'growth');
     EventBus.emit('tile:fertilized');
     RenderFarm.renderTile(i); RenderPanel.renderInventory(); RenderPanel.renderItems(); save();

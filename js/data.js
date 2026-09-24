@@ -110,10 +110,6 @@ const ROW_MAP = {
 };
 const COL_MAP = { seed:0, sprout:1, grown:2 };
 
-// Items: rows 23–27, cols = idle(0) · active(1) · depleted(2)
-const ITEM_ROW_MAP = { wateringCan:23, cage:24, commonFertilizer:25, uncommonFertilizer:26, scarecrow:27 };
-const ITEM_COL_MAP = { idle:0, active:1, depleted:2 };
-
 const ITEM_ICONS = { water:'💧', cage:'🔒', fertilizer:'🌿', uncommonFert:'⚗️', hiredHand:'👨‍🌾' };
 
 const MILESTONE_VALS = [100, 1000, 10000, 100000, 1000000];

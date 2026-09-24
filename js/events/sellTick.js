@@ -14,12 +14,18 @@ function tickSellBox() {
   let totalCoins = 0, sold = 0;
   for (let s = 0; s < maxSell && state.sellQueue.length > 0; s++) {
     const item = state.sellQueue.shift();
+    // Unknown ids are skipped and logged — an exception here would freeze the whole tick loop.
+    const recipe = item && window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
+    if (!item || (item.crafted ? !recipe : !SEEDS[item.seed])) {
+      console.warn('tickSellBox: skipping unknown sell-queue item', item);
+      log(`⚠️ Skipped unknown item in sell box (${item ? item.seed : '?'})`, 'system');
+      continue;
+    }
     let coins;
     if (item.crafted) {
-      const recipe = window.RECIPES && window.RECIPES.find(r => r.id === item.seed);
-      coins = recipe ? recipe.sellValue : 0;
+      coins = recipe.sellValue;
       state.stats.craftedSold = (state.stats.craftedSold || 0) + 1;
-      log(`${recipe ? recipe.emoji : '?'} ${recipe ? recipe.name : item.seed} sold for ${coinHTML()}${formatNumber(coins)}`, 'earnings');
+      log(`${recipe.emoji} ${recipe.name} sold for ${coinHTML()}${formatNumber(coins)}`, 'earnings');
     } else if (item.fungal) {
       coins = 0;
       log(`${SEEDS[item.seed].icon} ${SEEDS[item.seed].name} sold for ${coinHTML()}${formatNumber(coins)} (fungal)`, 'earnings');

@@ -1,6 +1,4 @@
 function setupEvents() {
-  EventBus.on('crop:harvested', () => {});
-  EventBus.on('crop:sold',      () => {});
   EventBus.on('crop:planted',     () => { if (typeof Tutorial !== 'undefined') Tutorial.onPlanted(); });
   EventBus.on('crop:sold',        () => { if (typeof Tutorial !== 'undefined') Tutorial.onSold(); });
   EventBus.on('minigame:complete', ({ gameId, difficulty, won }) => {
@@ -27,7 +25,6 @@ function setupEvents() {
   EventBus.on('artifact:crafted', ({ artifactId }) => {
     const art = (window.ARTIFACTS || []).find(a => a.id === artifactId);
     const name = art ? art.name : artifactId;
-    DIRTY.panel = true;
     log(`🏺 ${name} artifact activated!`, 'unlock');
     showBanner(`🏺 ${name} is now active.`);
     Audio.playArtifactCraft();
@@ -68,7 +65,6 @@ function setupEvents() {
     log(`${season.emoji} ${season.name} has begun.`, 'season');
     showBanner(`${season.emoji} ${season.name} has arrived.`);
     Audio.playSeasonChange();
-    DIRTY.hud = true;
   });
   EventBus.on('event:drought', () => Audio.playDrought());
   EventBus.on('event:rain',    () => Audio.playRain());
@@ -77,10 +73,6 @@ function setupEvents() {
   EventBus.on('prestige:reset', () => {
     Audio.playPrestige();
     if (typeof checkPrestigeUnlocks === 'function') checkPrestigeUnlocks();
-    DIRTY.grid    = true;
-    DIRTY.hud     = true;
-    DIRTY.panel   = true;
-    DIRTY.sellbox = true;
     RenderFarm.buildGrid();
     RenderFarm.renderGrid();
     if (typeof applyFarmScale === 'function') applyFarmScale();
@@ -208,7 +200,13 @@ function setupUI() {
     resetBtn.addEventListener('click', e => {
       e.stopPropagation();
       if (!confirmed) { confirmed = true; resetBtn.textContent = 'Are you sure?'; }
-      else { localStorage.clear(); location.reload(); }
+      else {
+        // Only this game's keys: GitHub Pages projects on this account share one origin.
+        ['blissfarm10', 'blissfarm9', 'bliss_muted'].forEach(k => localStorage.removeItem(k));
+        TimerManager.timers = {};   // stop the autosave timer from re-writing the save before reload
+        window.save = () => {};
+        location.reload();
+      }
     });
   }());
 
@@ -339,7 +337,6 @@ function renderInitial() {
   RenderPanel.renderUpgrades();
   RenderSellbox.renderQueue();
   RenderSellbox.renderCrank();
-  RenderSellbox.renderWell();
   renderLoose();
   updateCoins();
   RenderHUD.renderStage();
