@@ -1,0 +1,500 @@
+{
+ "state": {
+  "coins": 7654321,
+  "coinsEarned": 98765432,
+  "milestones": {
+   "100": true,
+   "1000": true,
+   "10000": true,
+   "100000": true,
+   "1000000": true
+  },
+  "stagesSeen": {
+   "1": true,
+   "2": true,
+   "3": true,
+   "4": true
+  },
+  "mature": true,
+  "tiles": [
+   {
+    "seed": "wheat",
+    "plantedAt": 1789999980000
+   },
+   {
+    "seed": "carrot",
+    "plantedAt": 1789999995000,
+    "burnedSeconds": 12.5
+   },
+   null,
+   {
+    "seed": "potato",
+    "plantedAt": 1789999901000,
+    "burnedSeconds": 15
+   },
+   {
+    "seed": "sunflower",
+    "plantedAt": 1789999999000,
+    "burnedSeconds": 3,
+    "sellBonus": 1.25
+   },
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   {
+    "seed": "pumpkin",
+    "plantedAt": 1789999999000,
+    "burnedSeconds": 100,
+    "drowned": true,
+    "sellBonus": 0.25
+   },
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "inventory": {
+   "wheat": 7,
+   "carrot": 3
+  },
+  "seedInventory": {
+   "potato": 4,
+   "pumpkin": 2
+  },
+  "bagInventory": {
+   "fieldBag": 1
+  },
+  "craftedInventory": {
+   "bread": 5
+  },
+  "achievements": {
+   "firstPlant": {
+    "unlockedAt": 1789999995000
+   },
+   "first100": {
+    "unlockedAt": 1789999996000
+   },
+   "firstHarvest": {
+    "unlockedAt": 1790000000000
+   },
+   "first1k": {
+    "unlockedAt": 1790000000000
+   },
+   "first10k": {
+    "unlockedAt": 1790000000000
+   },
+   "first100k": {
+    "unlockedAt": 1790000000000
+   },
+   "first1m": {
+    "unlockedAt": 1790000000000
+   },
+   "first10m": {
+    "unlockedAt": 1790000000000
+   },
+   "firstCrow": {
+    "unlockedAt": 1790000000000
+   },
+   "clearWeed": {
+    "unlockedAt": 1790000000000
+   },
+   "surviveLocust": {
+    "unlockedAt": 1790000000000
+   },
+   "surviveStage3": {
+    "unlockedAt": 1790000000000
+   },
+   "firstCraft": {
+    "unlockedAt": 1790000000000
+   },
+   "firstArtifact": {
+    "unlockedAt": 1790000000000
+   },
+   "firstPrestige": {
+    "unlockedAt": 1790000000000
+   },
+   "stage1": {
+    "unlockedAt": 1790000000000
+   },
+   "stage2": {
+    "unlockedAt": 1790000000000
+   },
+   "stage3": {
+    "unlockedAt": 1790000000000
+   },
+   "stage4": {
+    "unlockedAt": 1790000000000
+   },
+   "expandPlot": {
+    "unlockedAt": 1790000000000
+   },
+   "buyBag": {
+    "unlockedAt": 1790000000000
+   }
+  },
+  "stats": {
+   "totalHarvested": 42,
+   "totalPlanted": 50,
+   "totalCrafted": 6,
+   "craftedSold": 1,
+   "weedsCleared": 3,
+   "crowsSurvived": 2,
+   "locustsSurvived": 1,
+   "rotCured": 0,
+   "blightsSurvived": 1,
+   "bagsBought": 2,
+   "seedTypesPlanted": {
+    "potato": true,
+    "wheat": true
+   },
+   "recipesEverCrafted": {
+    "bread": true
+   },
+   "prestigeCount": 1
+  },
+  "sellQueue": [
+   {
+    "seed": "wheat",
+    "bonus": 1.25,
+    "drowned": false,
+    "fungal": false,
+    "crafted": false
+   },
+   {
+    "seed": "bread",
+    "bonus": 1,
+    "drowned": false,
+    "fungal": false,
+    "crafted": true
+   },
+   {
+    "seed": "carrot",
+    "bonus": 0.25,
+    "drowned": true,
+    "fungal": false,
+    "crafted": false
+   }
+  ],
+  "craftQueue": [
+   {
+    "recipeId": "bread",
+    "startedAt": 1789999999000,
+    "finishAt": 1790000029000
+   }
+  ],
+  "upgrades": {
+   "quickRoots": true,
+   "fertilizerI": true,
+   "goldenHarvest": true,
+   "marketEye": true,
+   "swiftMarketI": true,
+   "expandPlot": true,
+   "expandBottom": true,
+   "expand2ndCol": true,
+   "windUpCrank": true,
+   "crankUpI": true,
+   "ironSellBox": true,
+   "workshop": true,
+   "apprenticeBench": true,
+   "scarecrowCoat": true,
+   "ironGreenhouse": true,
+   "soilTreatment": true,
+   "copperSpout": true,
+   "ironCrank": true
+  },
+  "loose": [
+   {
+    "seed": "potato",
+    "id": 7,
+    "x": 500,
+    "y": 400,
+    "bonus": 1,
+    "drowned": false,
+    "fungal": false
+   }
+  ],
+  "expanded": true,
+  "expandedBottom": true,
+  "expand2ndCol": true,
+  "expand2ndRow": false,
+  "expand3rdCol": false,
+  "expand3rdRow": false,
+  "items": {
+   "wateringCan": true
+  },
+  "cageCount": 1,
+  "cages": [
+   2
+  ],
+  "canCharges": 1,
+  "canRefillAt": 0,
+  "tilesWatered": {
+   "0": true
+  },
+  "fertCharges": 2,
+  "uncommonFertCharges": 1,
+  "weeds": {
+   "5": {
+    "clicks": 3,
+    "spawnedAt": 1789999998000
+   }
+  },
+  "fertilizedTiles": {
+   "1": true
+  },
+  "uncommonFertilizedTiles": {
+   "3": true
+  },
+  "firstWeedEver": true,
+  "firstCrowEver": true,
+  "firstHawkEver": false,
+  "firstMoleEver": false,
+  "firstThornedEver": false,
+  "thornedWeeds": {
+   "6": {
+    "clicks": 1,
+    "spawnedAt": 1789999999000
+   }
+  },
+  "mounds": {
+   "7": 1790000010000
+  },
+  "rotTiles": {
+   "4": {
+    "infectedAt": 1789999997000
+   }
+  },
+  "firstRotEver": false,
+  "firstLocustEver": false,
+  "firstBlightEver": false,
+  "fungalTiles": {
+   "8": {
+    "spawnedAt": 1789999999900
+   }
+  },
+  "firstFungalEver": false,
+  "claimedTiles": {
+   "9": {
+    "claimedAt": 1790000000000,
+    "deadlineAt": 1790000060000,
+    "reclaimCost": 900
+   }
+  },
+  "diseasedTiles": {
+   "10": 1790000060000
+  },
+  "firstDeveloperEver": false,
+  "firstRatEver": false,
+  "firstAcidRainEver": false,
+  "voidRifts": {},
+  "firstVoidRiftEver": false,
+  "firstCosmicCrowEver": false,
+  "firstRealityStormEver": false,
+  "hiredHandCount": 1,
+  "hiredHandAssignments": {
+   "11": true
+  },
+  "hideBoughtUpgrades": true
+ },
+ "upgradesShared": true,
+ "meta": {
+  "stage": 4,
+  "reputation": 7,
+  "farmName": "Fixture Farm",
+  "seasonIndex": 2,
+  "seasonStartTime": 1789999999000,
+  "tutorialDone": true,
+  "lastSeen": null,
+  "dayOffset": 12345
+ },
+ "prestige": {
+  "count": 1,
+  "points": 3,
+  "spent": 4,
+  "perks": {
+   "fertileLegacy": 1,
+   "thickSkin": 1,
+   "headStart": 2
+  },
+  "highestStage": 3,
+  "totalGoldEarned": 5000000
+ },
+ "artifacts": {
+  "breadTotem": true
+ },
+ "blueprints": {
+  "bp_breadTotem": true,
+  "bp_goldSigil": true
+ },
+ "recipeUnlocks": {
+  "bread": true,
+  "carrotStew": true,
+  "sunflowerOil": true,
+  "wheatFlour": true,
+  "potatoMash": true,
+  "carrotJuice": true,
+  "celestialBread": true,
+  "voidEssence": true,
+  "netharbrew": true
+ },
+ "tradingPost": {
+  "lastReset": 1789999999000,
+  "deals": [
+   {
+    "id": "s1_carrot_1790000000000",
+    "slot": 1,
+    "label": "Discounted Seed",
+    "rarity": 1,
+    "emoji": "🌱",
+    "name": "Carrot Seeds ×4",
+    "desc": "Get 4 Carrot seeds",
+    "cost": 24,
+    "origCost": 60,
+    "canRepurchase": false,
+    "action": "seeds",
+    "seedId": "carrot",
+    "qty": 4
+   },
+   {
+    "id": "s2_forestBag_1790000000000",
+    "slot": 2,
+    "label": "Discounted Bag",
+    "rarity": 2,
+    "emoji": "🌲",
+    "name": "Forest Bag",
+    "desc": "1 bag — opens 3 seeds",
+    "cost": 5292,
+    "origCost": 8000,
+    "canRepurchase": false,
+    "action": "bag",
+    "bagId": "forestBag"
+   },
+   {
+    "id": "s3_bp_sunObelisk_1790000000000",
+    "slot": 3,
+    "label": "Discounted Blueprint",
+    "rarity": 2,
+    "emoji": "🌻",
+    "name": "Sun Obelisk Blueprint",
+    "desc": "Day bonus increased to +25%",
+    "cost": 9032,
+    "origCost": 15000,
+    "canRepurchase": false,
+    "action": "blueprint",
+    "blueprintId": "bp_sunObelisk"
+   },
+   {
+    "id": "s4_bundle_glowshroom_1790000000000",
+    "slot": 4,
+    "label": "Exclusive Item",
+    "rarity": 3,
+    "emoji": "🍄",
+    "name": "Glowshroom Bundle ×5",
+    "desc": "5 rare Glowshroom seeds — exclusive!",
+    "cost": 4800,
+    "origCost": null,
+    "canRepurchase": false,
+    "action": "rareSeedBundle",
+    "seedId": "glowshroom",
+    "qty": 5
+   },
+   {
+    "id": "s5_ing_sunflowerOil_1790000000000",
+    "slot": 5,
+    "label": "Artifact Deal",
+    "rarity": 4,
+    "emoji": "🫙",
+    "name": "Sunflower Oil ×20",
+    "desc": "Crafted ingredient for Moon Shrine",
+    "cost": 2800,
+    "origCost": 4000,
+    "canRepurchase": false,
+    "action": "ingredientBundle",
+    "recipeId": "sunflowerOil",
+    "qty": 20
+   },
+   {
+    "id": "slot6_mystery",
+    "slot": 6,
+    "label": "Mystery Box",
+    "rarity": 3,
+    "emoji": "🎁",
+    "name": "Mystery Box",
+    "desc": "Volatile outcome — could be amazing or terrible!",
+    "cost": 10000,
+    "origCost": null,
+    "canRepurchase": true,
+    "action": "mystery"
+   }
+  ],
+  "purchased": {
+   "d1": true
+  },
+  "merchantIdx": 2
+ },
+ "minigames": {
+  "soilMixer": {
+   "playsEasy": 3,
+   "playsMedium": 0,
+   "playsHard": 0,
+   "totalPlays": 3
+  },
+  "waterFlow": {
+   "playsEasy": 0,
+   "playsMedium": 0,
+   "playsHard": 0,
+   "totalPlays": 0
+  }
+ },
+ "settings": {
+  "muted": false,
+  "debugMode": true,
+  "reducedMotion": true,
+  "showBanners": false,
+  "logFilters": {
+   "attack": false
+  }
+ },
+ "modifiers": {
+  "growSpeed": 2.03125,
+  "sellValue": 1.7,
+  "sellInterval": 8000,
+  "crankClickMultiplier": 1.025,
+  "sellBoxCapacity": 2,
+  "craftSpeedMult": 1.25,
+  "craftSlots": 1,
+  "seasonGrowMult": 0.95,
+  "seasonSellMult": 1.15,
+  "seasonWeedMult": 0.8,
+  "seasonCrowMult": 1.25,
+  "eventResistance": {
+   "crow": 0.52,
+   "weed": 0.27999999999999997,
+   "thornedWeed": 0.08,
+   "hawk": 0.27999999999999997,
+   "mole": 0.27999999999999997,
+   "rot": 0.6,
+   "locust": 0.27999999999999997,
+   "blight": 0.27999999999999997,
+   "fungal": 0.27999999999999997,
+   "developer": 0.28,
+   "plagueRat": 0.28,
+   "acidRain": 0.27999999999999997,
+   "voidRift": 0.08,
+   "cosmicCrow": 0.28,
+   "realityStorm": 0.08
+  }
+ },
+ "ui": {
+  "nextId": 12,
+  "panelExpanded": false,
+  "panelWidth": 333
+ }
+}

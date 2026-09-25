@@ -1,0 +1,296 @@
+{
+ "trace": [
+  {
+   "step": "Expand Plot",
+   "coins": 4999600,
+   "rep": 12,
+   "upgrades": "expandPlot",
+   "mods": [
+    1,
+    1,
+    10000,
+    1,
+    1.015
+   ]
+  },
+  {
+   "step": "Bottom Row Expansion",
+   "coins": 4998100,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot",
+   "mods": [
+    1,
+    1,
+    10000,
+    1,
+    1.015
+   ]
+  },
+  {
+   "step": "Iron Sell Box",
+   "coins": 4993100,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironSellBox",
+   "mods": [
+    1,
+    1,
+    10000,
+    2,
+    1.015
+   ]
+  },
+  {
+   "step": "Wind-Up Crank",
+   "coins": 4992800,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironSellBox,windUpCrank",
+   "mods": [
+    1,
+    1,
+    10000,
+    2,
+    1.015
+   ]
+  },
+  {
+   "step": "Iron Crank",
+   "coins": 4992050,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironCrank,ironSellBox,windUpCrank",
+   "mods": [
+    1,
+    1,
+    10000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Workshop Area 🔨",
+   "coins": 4987050,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironCrank,ironSellBox,windUpCrank,workshop",
+   "mods": [
+    1,
+    1,
+    10000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Quick Roots",
+   "coins": 4987030,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    10000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Swift Market I",
+   "coins": 4986950,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Quick Roots",
+   "coins": 4986950,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Watering Can",
+   "coins": 4986850,
+   "rep": 12,
+   "upgrades": "expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Copper Spout",
+   "coins": 4986050,
+   "rep": 12,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Cage",
+   "coins": 4985800,
+   "rep": 12,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Cage",
+   "coins": 4985550,
+   "rep": 12,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Common Fertilizer",
+   "coins": 4985050,
+   "rep": 12,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Uncommon Fertilizer",
+   "coins": 4983050,
+   "rep": 12,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Hired Hand",
+   "coins": 4983050,
+   "rep": 7,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Hired Hand",
+   "coins": 4983050,
+   "rep": 2,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  },
+  {
+   "step": "Hired Hand",
+   "coins": 4983050,
+   "rep": 2,
+   "upgrades": "copperSpout,expandBottom,expandPlot,ironCrank,ironSellBox,quickRoots,swiftMarketI,windUpCrank,workshop",
+   "mods": [
+    1.15,
+    1,
+    8000,
+    2,
+    1.025
+   ]
+  }
+ ],
+ "sounds": [
+  "playUpgrade",
+  "playUpgrade",
+  "playUpgrade",
+  "playUpgrade",
+  "playUpgrade",
+  "playUpgrade",
+  "playUpgrade",
+  "playUpgrade"
+ ],
+ "log": [
+  "07:13:20 ⬆️ Expand Plot purchased",
+  "07:13:20 ⬆️ Bottom Row Expansion purchased",
+  "07:13:20 ⬆️ Iron Sell Box purchased",
+  "07:13:20 ⬆️ Wind-Up Crank purchased",
+  "07:13:20 ⬆️ Iron Crank purchased",
+  "07:13:20 ⬆️ Workshop Area 🔨 purchased",
+  "07:13:20 ⬆️ Quick Roots purchased",
+  "07:13:20 ⬆️ Swift Market I purchased",
+  "07:13:20  Copper Spout installed — fill time 8s, capacity 2",
+  "07:13:20 👨‍🌾 Hired hand hired!",
+  "07:13:20 👨‍🌾 Hired hand hired!"
+ ],
+ "state": {
+  "items": {
+   "wateringCan": true
+  },
+  "cageCount": 2,
+  "fertCharges": 1,
+  "uncommonFertCharges": 1,
+  "hiredHandCount": 2,
+  "expanded": true,
+  "expandedBottom": true,
+  "tiles": 16,
+  "recipeUnlocks": [
+   "bread",
+   "carrotJuice",
+   "carrotStew",
+   "netharbrew",
+   "potatoMash",
+   "sunflowerOil",
+   "wheatFlour"
+  ],
+  "achievements": [
+   "expandPlot",
+   "stage1",
+   "stage2",
+   "stage3",
+   "stage4"
+  ]
+ },
+ "dom": {
+  "tiles": 16,
+  "sellbox": "iron",
+  "crank": "flex iron",
+  "itemButtons": "Owned(off)|Owned(off)|Buy|Buy|Buy|Hire(off)",
+  "itemCosts": "100|800|250|500|2K|⭐5 rep"
+ }
+}
